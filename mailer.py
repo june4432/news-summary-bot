@@ -46,8 +46,8 @@ def build_email_body(news_data, notion_url, recipient_email):
             </div>
             """
 
-    unsubscribe_email = quote(email)  # ➜ xxx%2Bnewsbot@gmail.com
-
+    unsubscribe_email = quote(recipient_email) # ➜ xxx%2Bnewsbot@gmail.com
+    
     html += f"""
     <p><a href="{notion_url}" style="color:#1a73e8; text-decoration:none;">🔗 지난 기사 보러 가기</a></p>
     <div style='text-align:center; margin-top: 32px;'>

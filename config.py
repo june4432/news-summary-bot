@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # .env 파일에서 환경변수 로드
+load_dotenv('/home/pi/project/news-summary-bot/.env')  # .env 파일에서 환경변수 로드
 
 api_key = os.getenv("API_KEY")
 notion_token = os.getenv("NOTION_TOKEN")
