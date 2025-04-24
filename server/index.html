@@ -85,7 +85,7 @@
       </form>
     </div>
 
-    <p id="result" style="margin-top: 20px; color: #333;"></p>
+    <p id="result" style="margin-top: 20px; color: #333; opacity: 0; transition: opacity 0.3s;"></p>
   </div>
 
   <script>
@@ -95,7 +95,7 @@
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
     }
-
+  
     function submitForm(event, endpoint) {
       event.preventDefault();
       const form = event.target;
@@ -107,22 +107,36 @@
       })
       .then(res => res.json())
       .then(res => {
-        document.getElementById('result').innerText = res.message || res.error || "응답 없음";
+        const result = document.getElementById('result');
+        result.innerText = res.message || res.error || "응답 없음";
+        result.style.opacity = 1;
+        form.reset(); // ✅ 입력 필드 초기화
+  
+        setTimeout(() => {
+          result.style.opacity = 0;
+          result.innerText = "";
+        }, 3000); // ✅ 3초 뒤 메시지 사라짐
       })
       .catch(err => {
-        document.getElementById('result').innerText = "오류가 발생했어요.";
+        const result = document.getElementById('result');
+        result.innerText = "오류가 발생했어요.";
+        result.style.opacity = 1;
+        setTimeout(() => {
+          result.style.opacity = 0;
+          result.innerText = "";
+        }, 3000);
         console.error(err);
       });
     }
-
+  
     window.onload = () => {
-    const tabParam = new URLSearchParams(window.location.search).get("tab");
-    if (tabParam === "subscribe") {
-      document.getElementById("subscribe-tab").click();
-    } else if (tabParam === "unsubscribe") {
-      document.getElementById("unsubscribe-tab").click();
-    }
-  };
+      const tabParam = new URLSearchParams(window.location.search).get("tab");
+      if (tabParam === "subscribe") {
+        document.querySelectorAll(".tab")[0].click();
+      } else if (tabParam === "unsubscribe") {
+        document.querySelectorAll(".tab")[1].click();
+      }
+    };
   </script>
 </body>
 </html>
