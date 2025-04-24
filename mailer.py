@@ -1,4 +1,3 @@
-### 📁 mailer.py
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
@@ -24,26 +23,26 @@ def build_email_body(news_data, notion_url):
         categorized[article.get("category", "기타")].append(article)
 
     for category, articles in categorized.items():
-        html += f"<h2 style='margin-bottom: 8px;'>{category}</h2>"
+        html += f"<h2 style='margin-top: 40px; margin-bottom: 12px; font-size: 20px; border-bottom: 2px solid #1a73e8; padding-bottom: 4px;'>🗂️ {category} 뉴스</h2>"
         for idx, article in enumerate(articles, start=1):
             summary_html = article['summary'].replace('\n', '<br>')
-            tag_html = f"<div style='color: #888; font-size: 13px; margin-top: 4px;'>#" + " #".join(article.get('tags', [])) + "</div>" if article.get('tags') else ""
+            tag_html = f"<p style='color: #888; font-size: 13px; margin: 4px 0;'>#" + " #".join(article.get('tags', [])) + "</p>" if article.get('tags') else ""
             html += f"""
-            <div style='margin-bottom: 24px;'>
-                <div style='font-size:16px; font-weight:bold; line-height: 1.4;'>
+            <div style='margin-bottom: 28px;'>
+                <p style='font-size: 16px; font-weight: bold; margin: 0 0 4px;'>
                     {idx}. {article['title']}
-                </div>
-                <div style='line-height: 1.6; margin-top: 2px;'>
+                </p>
+                <div style='line-height: 1.6; font-size: 15px; margin: 0;'>
                     {summary_html}
                 </div>
                 {tag_html}
-                <div style='margin-top: 8px;'>
-                    <a href="{article['url']}" style="color:#1a73e8; text-decoration:none;">본문보러가기</a>
-                </div>
+                <p style='margin-top: 8px;'>
+                    <a href="{article['url']}" style="color:#1a73e8; text-decoration:none; font-weight: bold;">🔗 본문 보러가기</a>
+                </p>
             </div>
             """
 
-    html += f"""<p>지난 기사 보러 가기 - <a href="{notion_url}">{notion_url}</a></p>"""
+    html += f"""<p>지난 기사 보러 가기 - <a href="{notion_url}" style="color:#1a73e8; text-decoration:underline;">{notion_url}</a></p>"""
     return html
 
 def get_email_subject():

@@ -4,6 +4,7 @@ from crawler import crawl_news
 from summarizer import summarize_news_via_api
 from notion_writer import save_to_notion, get_existing_urls_from_notion
 from mailer import build_email_body, send_email, get_email_subject
+from bulk_mailer import send_bulk_email
 from config import api_key, notion_token, database_id, sender_email, sender_app_password, recipient_email, notion_url  # recipient_email can be comma-separated
 
 rss_sources = [
@@ -37,7 +38,9 @@ for category, rss_url in rss_sources:
 for article in news_data:
     save_to_notion(article, notion_token, database_id)
 
-subject = get_email_subject()
-email_body = build_email_body(news_data, notion_url)  # ✅ 한번만 생성
-for recipient in recipient_email.split(','):
-    send_email(sender_email, sender_app_password, recipient.strip(), subject, email_body)
+# subject = get_email_subject()
+# email_body = build_email_body(news_data, notion_url)  # ✅ 한번만 생성
+# for recipient in recipient_email.split(','):
+#     send_email(sender_email, sender_app_password, recipient.strip(), subject, email_body)
+
+send_bulk_email(news_data)

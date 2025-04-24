@@ -5,3 +5,4 @@ news_data.json
 news_data_with_summary.json
 sent_urls.txt
 log.txt
+recipients.json
