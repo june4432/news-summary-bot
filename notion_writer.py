@@ -31,7 +31,7 @@ def build_children_blocks_from_content(article):
             })
     return blocks
 
-def save_to_notion(article, notion_token, database_id):
+def save_to_notion(article, notion_token, notion_database_id):
     url = "https://api.notion.com/v1/pages"
 
     headers = {
@@ -69,7 +69,7 @@ def save_to_notion(article, notion_token, database_id):
     children = build_children_blocks_from_content(article)
 
     data = {
-        "parent": {"database_id": database_id},
+        "parent": {"database_id": notion_database_id},
         "icon": {
             "type": "emoji",
             "emoji": "📰"
@@ -85,8 +85,8 @@ def save_to_notion(article, notion_token, database_id):
         print(f"❌ Notion 저장 실패: {article['title']}")
         print(response.status_code, response.text)
 
-def get_existing_urls_from_notion(notion_token, database_id):
-    url = f"https://api.notion.com/v1/databases/{database_id}/query"
+def get_existing_urls_from_notion(notion_token, notion_database_id):
+    url = f"https://api.notion.com/v1/databases/{notion_database_id}/query"
     headers = {
         "Authorization": f"Bearer {notion_token}",
         "Notion-Version": "2022-06-28",

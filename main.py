@@ -5,7 +5,7 @@ from summarizer import summarize_news_via_api
 from notion_writer import save_to_notion, get_existing_urls_from_notion
 from mailer import build_email_body, send_email, get_email_subject
 from bulk_mailer import send_bulk_email
-from config import api_key, notion_token, database_id, sender_email, sender_app_password, recipient_email, notion_url  # recipient_email can be comma-separated
+from config import api_key, notion_token, notion_database_id, sender_email, sender_app_password, recipient_email, notion_url  # recipient_email can be comma-separated
 
 rss_sources = [
     ("헤드라인", "https://www.mk.co.kr/rss/30000001/"),
@@ -14,7 +14,7 @@ rss_sources = [
 ]
 
 news_data = []
-existing_urls = get_existing_urls_from_notion(notion_token, database_id)
+existing_urls = get_existing_urls_from_notion(notion_token, notion_database_id)
 
 for category, rss_url in rss_sources:
     urls = get_latest_news_urls(rss_url)
@@ -36,11 +36,6 @@ for category, rss_url in rss_sources:
         news_data.append(article)
 
 for article in news_data:
-    save_to_notion(article, notion_token, database_id)
-
-# subject = get_email_subject()
-# email_body = build_email_body(news_data, notion_url)  # ✅ 한번만 생성
-# for recipient in recipient_email.split(','):
-#     send_email(sender_email, sender_app_password, recipient.strip(), subject, email_body)
+    save_to_notion(article, notion_token, notion_database_id)
 
 send_bulk_email(news_data)

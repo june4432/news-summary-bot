@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>뉴스레터 관리</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    .card {
+      background: white;
+      max-width: 500px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 24px;
+    }
+    .tabs {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      border-bottom: 3px solid transparent;
+    }
+    .tab.active {
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+    .form-section {
+      display: none;
+      margin-top: 30px;
+    }
+    .form-section.active {
+      display: block;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #1a73e8;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📨 뉴스레터 구독 서비스</h1>
+    <p>관심 있는 뉴스를 빠르게 받아보고 싶다면 지금 구독해보세요.<br>AI가 요약해드립니다 🤖</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('subscribe')">구독 신청</div>
+      <div class="tab" onclick="switchTab('unsubscribe')">구독 해제</div>
+    </div>
+
+    <div id="subscribe" class="form-section active">
+      <form onsubmit="submitForm(event, '/subscribe')">
+        <input type="text" placeholder="닉네임을 입력하세요" name="name" required /><br />
+        <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
+        <button type="submit">구독 신청하기</button>
+      </form>
+    </div>
+
+    <div id="unsubscribe" class="form-section">
+      <form onsubmit="submitForm(event, '/unsubscribe')">
+        <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
+        <button type="submit" style="background:#d93025">구독 해제하기</button>
+      </form>
+    </div>
+
+    <p id="result" style="margin-top: 20px; color: #333;"></p>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function submitForm(event, endpoint) {
+      event.preventDefault();
+      const form = event.target;
+      const data = Object.fromEntries(new FormData(form));
+      fetch(endpoint, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        document.getElementById('result').innerText = res.message || res.error || "응답 없음";
+      })
+      .catch(err => {
+        document.getElementById('result').innerText = "오류가 발생했어요.";
+        console.error(err);
+      });
+    }
+
+    window.onload = () => {
+    const tabParam = new URLSearchParams(window.location.search).get("tab");
+    if (tabParam === "subscribe") {
+      document.getElementById("subscribe-tab").click();
+    } else if (tabParam === "unsubscribe") {
+      document.getElementById("unsubscribe-tab").click();
+    }
+  };
+  </script>
+</body>
+</html>
