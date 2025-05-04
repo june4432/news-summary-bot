@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
+import datetime
+from log import logger
 
 def crawl_news(url):
     response = requests.get(url)

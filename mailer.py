@@ -3,6 +3,8 @@ from email.mime.text import MIMEText
 from datetime import datetime
 from collections import defaultdict
 from urllib.parse import quote
+from log import logger
+from config import newsletter_url 
 
 def send_email(sender, app_password, recipient, subject, body):
     try:
@@ -16,12 +18,21 @@ def send_email(sender, app_password, recipient, subject, body):
             server.login(sender, app_password)
             server.send_message(msg)
 
-        print(f"📧 메일 발송 완료: {recipient}")
+        logger.info(f"📧 메일 발송 완료: {recipient}")
     except Exception as e:
-        print(f"❌ 메일 발송 실패 ({recipient}) → {e}")
+        logger.exception(f"❌ 메일 발송 실패 ({recipient}) → {e}")
 
-def build_email_body(news_data, notion_url, recipient_email):
-    html = ""
+def build_email_body(news_data, notion_url, recipient_email, recipient_name):
+    html = f"""
+            <p style="font-size: 16px;">
+            안녕하세요 <strong>{recipient_name}</strong>님 👋
+            </p>
+            <p style="font-size: 14px; color: #555; margin-top: 0; margin-bottom: 24px;">
+            카테고리별로 최근 뉴스 10개를 <strong>AI가 요약했어요.</strong><br>
+            세상의 흐름을 빠르게 읽어보세요. 🌍
+            </p>
+            """
+
     categorized = defaultdict(list)
     for article in news_data:
         categorized[article.get("category", "기타")].append(article)
@@ -40,20 +51,24 @@ def build_email_body(news_data, notion_url, recipient_email):
                     {summary_html}
                 </div>
                 {tag_html}
-                <div style='margin-top: 8px;'>
-                    <a href="http://june4432.ipdisk.co.kr:9000/news-click?url={article['url']}" style="color:#1a73e8; text-decoration:none;">본문보러가기</a>
-                </div>
+                <a href="{newsletter_url}/news-click?url={article['url']}" style="display:inline-block; margin-top:8px; padding:6px 12px; background:#1a73e8; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
+                📄 본문 보러가기
+                </a>
             </div>
             """
 
     unsubscribe_email = quote(recipient_email) # ➜ xxx%2Bnewsbot@gmail.com
     
     html += f"""
-    <p><a href="{notion_url}" style="color:#1a73e8; text-decoration:none;">🔗 지난 기사 보러 가기</a></p>
-    <div style='text-align:center; margin-top: 32px;'>
-        <a href='http://june4432.ipdisk.co.kr:9000/unsubscribe-button?email={unsubscribe_email}' 
-        style='display:inline-block; padding:8px 16px; background:#d93025; color:white; border-radius:4px; text-decoration:none; font-size:13px;'>구독 해제하기</a>
-    </div>    
+        <div style="text-align: center; margin-top: 32px;">
+        <a href="{notion_url}" style="display:inline-block; margin-right:10px; padding:8px 14px; background:#777; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
+            📚 지난 기사 보러가기
+        </a>
+        <a href="http://your-server:9000/unsubscribe-button?email={recipient_email}" 
+            style="display:inline-block; padding:8px 14px; background:#d93025; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
+            ❌ 구독 해제하기
+        </a>
+        </div>
     """
     return html
 

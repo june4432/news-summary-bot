@@ -1,6 +1,7 @@
 ### 📁 notion_writer.py
 import requests
 from datetime import datetime, timedelta, timezone
+from log import logger
 
 def build_children_blocks_from_content(article):
     paragraphs = article["content"].split("\n")
@@ -80,10 +81,10 @@ def save_to_notion(article, notion_token, notion_database_id):
 
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 200:
-        print(f"✅ Notion 저장 성공: {article['title']}")
+        logger.info(f"✅ Notion 저장 성공: {article['title']}")
     else:
-        print(f"❌ Notion 저장 실패: {article['title']}")
-        print(response.status_code, response.text)
+        logger.error(f"❌ Notion 저장 실패: {article['title']}", exc_info=True)
+        logger.error(f"{response.status_code} {response.text}", exc_info=True)
 
 def get_existing_urls_from_notion(notion_token, notion_database_id):
     url = f"https://api.notion.com/v1/databases/{notion_database_id}/query"

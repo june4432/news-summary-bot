@@ -3,6 +3,7 @@ import json
 import os
 import requests
 from datetime import datetime
+from threading import Thread
 
 app = Flask(__name__)
 RECIPIENTS_FILE = "../recipients.json"
@@ -127,13 +128,17 @@ def unsubscribe():
 def news_click():
     article_url = request.args.get("url")
     if not article_url:
-        return "잘못된 요청: url 파라미터가 없습니다", 400
+        return "Invalid URL", 400
 
-    page_id = get_page_id_by_url(article_url)
+    # ✅ page_id 먼저 찾아야 함
+    page_id = get_page_id_by_url(article_url)  # ← 올바른 Notion 페이지 ID
     if page_id:
-        increment_view_count(page_id)
+        Thread(target=increment_view_count, args=(page_id,)).start()
+    else:
+        print("❌ 페이지 ID를 찾을 수 없음")
 
-    return redirect(article_url, code=302)
+    # 바로 리디렉션
+    return redirect(article_url)
 
 def get_page_id_by_url(article_url):
     #print(f"🔍 [조회 시작] URL 검색: {article_url}")

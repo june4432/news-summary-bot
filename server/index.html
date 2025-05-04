@@ -3,67 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <title>뉴스레터 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden; /* ✅ 스크롤 방지 */
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit; /* ✅ 전체 요소 패딩/보더 포함 */
+    }
+
     body {
       font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
       background: #f4f6f8;
       text-align: center;
       padding: 50px 20px;
     }
+
+
     .card {
       background: white;
+      width: 100%;
       max-width: 500px;
       margin: auto;
-      padding: 30px;
+      padding: 30px 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-wrap: break-word; /* 긴 이메일 주소나 텍스트 줄바꿈 */
     }
+
     h1 {
       font-size: 24px;
+      margin-top: 0;
     }
+
     .tabs {
       margin-top: 20px;
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
+
     .tab {
       padding: 10px 20px;
       cursor: pointer;
       font-weight: bold;
       border-bottom: 3px solid transparent;
     }
+
     .tab.active {
       border-color: #1a73e8;
       color: #1a73e8;
     }
+
     .form-section {
       display: none;
       margin-top: 30px;
     }
+
     .form-section.active {
       display: block;
     }
+
     input {
-      width: 80%;
-      padding: 10px;
+      width: 100%;
+      max-width: 100%;
+      padding: 14px;
       margin: 10px 0;
-      border-radius: 5px;
+      font-size: 16px;
+      border-radius: 6px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
+
     button {
       background: #1a73e8;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 20px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
     }
+
+    button[style*="background:#d93025"] {
+      background: #d93025 !important;
+    }
+
+    #result {
+      margin-top: 20px;
+      color: #333;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 20px 16px;
+      }
+
+      .tab {
+        font-size: 14px;
+        padding: 8px 14px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 12px;
+      }
+
+      input {
+        font-size: 16px; /* ✅ ios에서 input 터치 시 화면 확대 방지를 위해 15-> 16으로 변경 */
+        padding: 12px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+    body {
+      background: #121212;
+      color: #e0e0e0;
+    }
+    .card {
+      background: #1e1e1e;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    input {
+      background: #2b2b2b;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    button {
+      background: #3f51b5;
+    }
+    .tab.active {
+      border-color: #90caf9;
+      color: #90caf9;
+    }
+    .tab {
+      color: #aaa;
+    }
+    #result {
+      color: #ccc;
+    }
+  }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>📨 뉴스레터 구독 서비스</h1>
-    <p>🤖 AI가 요약해준 테마별 최신 기사를 보내드립니다.<br><strong>지금 구독</strong>해보세요.</p>
+    <p>AI가 요약한 테마별 최신 기사를 보내드려요.<br><strong>지금 구독</strong>해보세요. 📌</p>
+    <div style="margin-top: 20px; font-size: 13px; color: #888;">
+      <strong style="color: #aaa;">발송 시간 🚀</strong><br>
+      오전 7시 30분 / 오전 11시 30분 / 오후 3시 30분<br>
+      오후 5시 50분 / 오후 9시 30분
+    </div>
 
     <div class="tabs">
       <div class="tab active" onclick="switchTab('subscribe')">구독 신청</div>
@@ -85,7 +189,7 @@
       </form>
     </div>
 
-    <p id="result" style="margin-top: 20px; color: #333; opacity: 0; transition: opacity 0.3s;"></p>
+    <p id="result"></p>
   </div>
 
   <script>
@@ -95,40 +199,40 @@
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
     }
-  
+
     function submitForm(event, endpoint) {
       event.preventDefault();
       const form = event.target;
       const data = Object.fromEntries(new FormData(form));
       fetch(endpoint, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       })
-      .then(res => res.json())
-      .then(res => {
-        const result = document.getElementById('result');
-        result.innerText = res.message || res.error || "응답 없음";
-        result.style.opacity = 1;
-        form.reset(); // ✅ 입력 필드 초기화
-  
-        setTimeout(() => {
-          result.style.opacity = 0;
-          result.innerText = "";
-        }, 1500); // ✅ 1.5초 뒤 메시지 사라짐
-      })
-      .catch(err => {
-        const result = document.getElementById('result');
-        result.innerText = "오류가 발생했어요.";
-        result.style.opacity = 1;
-        setTimeout(() => {
-          result.style.opacity = 0;
-          result.innerText = "";
-        }, 3000);
-        console.error(err);
-      });
+        .then(res => res.json())
+        .then(res => {
+          const result = document.getElementById('result');
+          result.innerText = res.message || res.error || "응답 없음";
+          result.style.opacity = 1;
+          form.reset();
+
+          setTimeout(() => {
+            result.style.opacity = 0;
+            result.innerText = "";
+          }, 1500);
+        })
+        .catch(err => {
+          const result = document.getElementById('result');
+          result.innerText = "오류가 발생했어요.";
+          result.style.opacity = 1;
+          setTimeout(() => {
+            result.style.opacity = 0;
+            result.innerText = "";
+          }, 3000);
+          console.error(err);
+        });
     }
-  
+
     window.onload = () => {
       const tabParam = new URLSearchParams(window.location.search).get("tab");
       if (tabParam === "subscribe") {

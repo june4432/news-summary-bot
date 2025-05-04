@@ -1,5 +1,7 @@
 import requests
 import re
+import datetime
+from log import logger
 
 def summarize_news_via_api(title, content, api_key):
     url = "https://api.openai.com/v1/chat/completions"
@@ -30,19 +32,20 @@ def summarize_news_via_api(title, content, api_key):
         "temperature": 0.1
     }
 
-    print("\n🔍 GPT 요약 요청 시작...")
-    print("요약 대상 제목:", title)
-    print("본문 일부:", content[:200].replace('\n', ' ') + ("..." if len(content) > 200 else ""))
+    logger.info(f"🔍 GPT 요약 요청 시작...")
+    logger.info(f"요약 대상 제목: {title}")
+    content_preview = content[:200].replace('\n', ' ') + ("..." if len(content) > 200 else "")
+    logger.info(f"본문 일부: {content_preview}")
 
     response = requests.post(url, headers=headers, json=body)
 
     if response.status_code == 200:
         text = response.json()['choices'][0]['message']['content'].strip()
-        print("✅ GPT 요약 완료. 응답 내용:")
-        print(text)
+        logger.info(f"✅ GPT 요약 완료. 응답 내용:")
+        logger.info(f" {text}")
         return extract_summary_and_tags(text)
     else:
-        print("❌ GPT 호출 오류:", response.status_code, response.text)
+        logger.error(f"❌ GPT 호출 오류: {response.status_code} {response.text}", exc_info=True)
         return "요약 실패", []
 
 def extract_summary_and_tags(text):
@@ -59,6 +62,6 @@ def extract_summary_and_tags(text):
         else:
             summary_lines.append(line.strip())
 
-    print("📄 추출된 요약:", " ".join(summary_lines))
-    print("🏷️ 추출된 태그:", tags)
+    logger.info(f"📄 추출된 요약: {' '.join(summary_lines)}")
+    logger.info(f"🏷️ 추출된 태그: {tags}")
     return "\n".join(summary_lines), tags
