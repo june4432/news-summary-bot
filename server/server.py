@@ -211,7 +211,7 @@ def increment_view_count(page_id):
     except Exception as e:
         print(f"❌ 조회수 업데이트 실패: {e}")
 
-@app.route("/")
+@app.route("/news-bot")
 def index():
     return send_from_directory(".", "index.html")
 
