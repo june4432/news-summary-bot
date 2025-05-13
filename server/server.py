@@ -78,7 +78,7 @@ def unsubscribe_button():
     save_recipients(updated)
 
     if len(updated) == len(recipients):
-        return f"<p>뉴스레터 구독 정보가 없는 이메일입니다 : {email}</p>"
+        return send_from_directory('.', 'invalid_email.html')
 
     return f"""
     <html>
@@ -115,7 +115,7 @@ def unsubscribe_button():
         <div class="container">
             <h2>📮 구독이 해제되었습니다.</h2>
             <p><strong>{email}</strong> 주소의 뉴스레터 구독이 성공적으로 해제되었어요.</p>
-            <a class="btn" href='/?tab=subscribe'>다시 구독하러 가기</a>
+            <a class="btn" href='/news-bot?tab=subscribe'>다시 구독하러 가기</a>
         </div>
     </body>
     </html>
@@ -255,7 +255,7 @@ def preferences():
     
     entry = login_tokens.get(email)
     if not entry or token != entry['token'] or datetime.utcnow() > entry['expiry']:
-        return "⛔ 유효하지 않거나 만료된 링크입니다.", 401
+        return send_from_directory('.', '401.html'), 401        
     
     return send_from_directory('.', 'preferences.html')
 

@@ -70,7 +70,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
             style="display:inline-block; margin:4px; padding:10px 16px; background:#5f6368; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
                 📚 지난 기사 보기
             </a>
-            <a href="{newsletter_url}/unsubscribe-button?email={recipient_email}" 
+            <a href="{newsletter_url}/unsubscribe-button?email={unsubscribe_email}" 
             style="display:inline-block; margin:4px; padding:10px 16px; background:#d93025; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
                 ❌ 구독 해제
             </a>
