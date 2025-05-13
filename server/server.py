@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify, send_from_directory, redirect, render
 import json
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
+import secrets
+from urllib.parse import quote
+from send_magic_link_email import send_magic_link_email
 
 app = Flask(__name__)
 RECIPIENTS_FILE = "../recipients.json"
@@ -214,6 +217,79 @@ def increment_view_count(page_id):
 @app.route("/news-bot")
 def index():
     return send_from_directory(".", "index.html")
+
+@app.route("/login-request")
+def login_request():
+    return send_from_directory(".", "login-request.html")    
+
+login_tokens = {}  # 메모리 저장
+
+@app.route("/send-magic-link", methods=["POST"])
+def send_magic_link():
+    email = request.get_json().get("email")
+    token = secrets.token_urlsafe(16)
+    expiry = datetime.utcnow() + timedelta(minutes=10)
+    login_tokens[email] = {"token": token, "expiry": expiry}
+
+    send_magic_link_email(email, token)  # ✅ 여기서 호출
+
+    # ✅ POST 응답 후 GET 요청을 리디렉션으로 처리
+    return jsonify({"message": "메일이 전송되었습니다."})
+
+@app.route("/preferences")
+def preferences():
+    email = request.args.get("email")
+    token = request.args.get("token")
+
+    print(email)
+    print(token)
+    
+    entry = login_tokens.get(email)
+    if not entry or token != entry['token'] or datetime.utcnow() > entry['expiry']:
+        return "⛔ 유효하지 않거나 만료된 링크입니다.", 401
+    
+    return send_from_directory('.', 'preferences.html')
+
+@app.route("/update-preferences", methods=["POST"])
+def update_preferences():
+    data = request.get_json()
+    email = data.get("email")
+    selected_times = data.get("time_slots", [])
+    
+    recipients = load_recipients()
+    for person in recipients:
+        if person['email'] == email:
+            person['time_slots'] = selected_times
+            break
+    else:
+        recipients.append({"email": email, "time_slots": selected_times})
+    
+    save_recipients(recipients)
+    return jsonify({"message": "설정이 저장되었습니다 ✅"})
+
+
+
+
+
+
+
+@app.route("/get-preferences", methods=["GET"])
+def get_preferences():
+    email = request.args.get("email")
+    if not email:
+        return jsonify({"error": "이메일이 없습니다"}), 400
+
+    recipients = load_recipients()
+    for person in recipients:
+        if person["email"] == email:
+            return jsonify({"time_slots": person.get("time_slots", [])}), 200
+
+    return jsonify({"time_slots": []})  # 구독자는 있지만 설정이 없거나, 신규 유저
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)

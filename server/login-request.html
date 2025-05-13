@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인 요청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-wrap: break-word;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+      color: #333;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #1a73e8;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #1669c1;
+    }
+
+    #status {
+      margin-top: 20px;
+      color: green;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 20px 16px;
+      }
+
+      input {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 12px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #121212;
+        color: #e0e0e0;
+      }
+
+      .card {
+        background: #1e1e1e;
+        box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      }
+
+      input {
+        background: #2b2b2b;
+        color: white;
+        border: 1px solid #555;
+      }
+
+      button {
+        background: #3f51b5;
+      }
+
+      #status {
+        color: #90ee90;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 뉴스레터 수신 설정</h1>
+    <p>이메일 주소를 입력하면<br>수신 시간 설정 링크를 보내드려요.</p>
+    <form id="login-form">
+      <input type="email" id="email" name="email" placeholder="이메일 주소 입력" required />
+      <button type="submit">로그인 링크 받기</button>
+    </form>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = "";
+
+      try {
+        const response = await fetch("/send-magic-link", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+        statusEl.textContent = result.message || "응답 없음";
+        statusEl.style.color = "green";
+      } catch (err) {
+        statusEl.textContent = "❌ 오류가 발생했어요. 다시 시도해주세요.";
+        statusEl.style.color = "red";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

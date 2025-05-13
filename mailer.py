@@ -5,12 +5,13 @@ from collections import defaultdict
 from urllib.parse import quote
 from log import logger
 from config import newsletter_url 
+from email.utils import formataddr
 
 def send_email(sender, app_password, recipient, subject, body):
     try:
         msg = MIMEText(body, "html", _charset="utf-8")
         msg['Subject'] = subject
-        msg['From'] = sender
+        msg['From'] = formataddr(("AI뉴스봇🤖", sender))
         msg['To'] = recipient
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
@@ -51,7 +52,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
                     {summary_html}
                 </div>
                 {tag_html}
-                <a href="{newsletter_url}/news-click?url={article['url']}" style="display:inline-block; margin-top:8px; padding:6px 12px; background:#1a73e8; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
+                <a href="{newsletter_url}/news-click?url={article['url']}" style="display:inline-block; margin-top:8px; padding:6px 12px; background:#34a853; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
                 📄 본문 보러가기
                 </a>
             </div>
@@ -60,16 +61,22 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
     unsubscribe_email = quote(recipient_email) # ➜ xxx%2Bnewsbot@gmail.com
     
     html += f"""
-        <div style="text-align: center; margin-top: 32px;">
-        <a href="{notion_url}" style="display:inline-block; margin-right:10px; padding:8px 14px; background:#777; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
-            📚 지난 기사 보러가기
-        </a>
-        <a href="http://your-server:9000/unsubscribe-button?email={recipient_email}" 
-            style="display:inline-block; padding:8px 14px; background:#d93025; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
-            ❌ 구독 해제하기
-        </a>
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{newsletter_url}/login-request" 
+            style="display:inline-block; margin:4px; padding:10px 16px; background:#1a73e8; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
+                ⏰ 수신 시간 설정
+            </a>
+            <a href="{notion_url}" 
+            style="display:inline-block; margin:4px; padding:10px 16px; background:#5f6368; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
+                📚 지난 기사 보기
+            </a>
+            <a href="{newsletter_url}/unsubscribe-button?email={recipient_email}" 
+            style="display:inline-block; margin:4px; padding:10px 16px; background:#d93025; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
+                ❌ 구독 해제
+            </a>
         </div>
-    """
+    """ 
+    
     return html
 
 def get_email_subject():

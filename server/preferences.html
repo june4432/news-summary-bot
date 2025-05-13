@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>뉴스레터 수신 시간대 설정</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-wrap: break-word;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 14px 0;
+      font-size: 15px;
+      color: #333;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.1);
+    }
+
+    input[type="hidden"] {
+      display: none;
+    }
+
+    button {
+      background: #1a73e8;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: green;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 20px 16px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 12px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #121212;
+        color: #e0e0e0;
+      }
+
+      .card {
+        background: #1e1e1e;
+        box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      }
+
+      label {
+        color: #ccc;
+      }
+
+      input[type="checkbox"] {
+        accent-color: #90caf9;
+      }
+
+      button {
+        background: #3f51b5;
+      }
+
+      #status {
+        color: #90ee90;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>⏰ 수신 시간대 설정</h2>
+    <p>원하는 시간대를 선택하면<br>그 시간에만 뉴스레터를 받아볼 수 있어요.</p>
+
+    <form id="timeForm">
+      <label><input type="checkbox" name="time" value="07:30" /> 오전 7:30 (아침 뉴스)</label>
+      <label><input type="checkbox" name="time" value="11:30" /> 오전 11:30 (오전 브리핑)</label>
+      <label><input type="checkbox" name="time" value="15:30" /> 오후 3:30 (시장 동향)</label>
+      <label><input type="checkbox" name="time" value="17:50" /> 오후 5:50 (퇴근길 요약)</label>
+      <label><input type="checkbox" name="time" value="21:30" /> 오후 9:30 (하루 정리)</label>
+
+      <input type="hidden" id="emailField" />
+
+      <button type="submit">저장하기</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    document.getElementById("emailField").value = email;
+
+    async function loadPreferences() {
+      const res = await fetch(`/get-preferences?email=${encodeURIComponent(email)}`);
+      const result = await res.json();
+      const saved = result.time_slots || [];
+
+      document.querySelectorAll('input[name="time"]').forEach(cb => {
+        cb.checked = saved.includes(cb.value);
+      });
+    }
+
+    document.getElementById("timeForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const checkboxes = document.querySelectorAll('input[name="time"]:checked');
+      const selected = Array.from(checkboxes).map(cb => cb.value);
+
+      const res = await fetch("/update-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, time_slots: selected })
+      });
+
+      const result = await res.json();
+      document.getElementById("status").innerText = result.message || "저장 실패!";
+    });
+
+    if (email) loadPreferences();
+  </script>
+</body>
+</html>
