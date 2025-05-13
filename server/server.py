@@ -23,11 +23,13 @@ def save_recipients(data):
     with open(RECIPIENTS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+# 랜딩페이지에서 구독 기능
 @app.route("/subscribe", methods=["POST"])
 def subscribe():
     data = request.get_json()
     name = data.get("name")
     email = data.get("email")
+    time_slots = data.get("time_slots", [])  # ✅ time_slots 받아오기
 
     if not name or not email:
         return jsonify({"error": "이름과 이메일은 필수입니다. 🔥"}), 400
@@ -37,25 +39,34 @@ def subscribe():
         return jsonify({"message": "이미 구독 중입니다. 👍"}), 200
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    recipients.append({"name": name, "email": email, "subscribed_at": timestamp})
+    recipients.append({
+        "name": name,
+        "email": email,
+        "subscribed_at": timestamp,
+        "time_slots": time_slots  # ✅ 시간대도 함께 저장
+    })
     save_recipients(recipients)
     return jsonify({"message": "구독이 완료되었습니다. 🎉"}), 200
 
-@app.route("/unsubscribe")
-def auto_unsubscribe():
-    email = request.args.get("email")
+# 랜딩페이지에서 구독해제 기능
+@app.route("/unsubscribe", methods=["POST"])
+def unsubscribe():
+    data = request.get_json()
+    email = data.get("email")
+
     if not email:
-        return "<h3>⚠️ 이메일 정보가 누락되었습니다.</h3>", 400
+        return jsonify({"error": "이메일은 필수입니다."}), 400
 
     recipients = load_recipients()
     updated = [r for r in recipients if r["email"] != email]
 
     if len(updated) == len(recipients):
-        return f"<h3>📭 {email} 은(는) 구독 중이 아닙니다.</h3><p><a href='/?tab=subscribe'>구독하기</a></p>", 200
+        return jsonify({"message": "해당 이메일은 구독 목록에 없습니다."}), 404
 
     save_recipients(updated)
-    return f"<h3>🗑️ {email} 님의 구독이 해제되었습니다.</h3><p><a href='/?tab=subscribe'>다시 구독하기</a></p>", 200
+    return jsonify({"message": "구독이 해제되었습니다."}), 200
 
+# 메일에서 구독해제 버튼을 눌렀을 때 액션
 @app.route("/unsubscribe-button")
 def unsubscribe_button():
     email = request.args.get("email")
@@ -110,23 +121,9 @@ def unsubscribe_button():
     </html>
     """
 
-@app.route("/unsubscribe", methods=["POST"])
-def unsubscribe():
-    data = request.get_json()
-    email = data.get("email")
 
-    if not email:
-        return jsonify({"error": "이메일은 필수입니다."}), 400
 
-    recipients = load_recipients()
-    updated = [r for r in recipients if r["email"] != email]
-
-    if len(updated) == len(recipients):
-        return jsonify({"message": "해당 이메일은 구독 목록에 없습니다."}), 404
-
-    save_recipients(updated)
-    return jsonify({"message": "구독이 해제되었습니다."}), 200
-
+# 메일에서 뉴스링크 클릭 시 - 노션페이지가져오기 -> 조회수 증가 -> 본문 링크 리다이렉트
 @app.route("/news-click")
 def news_click():
     article_url = request.args.get("url")
@@ -143,6 +140,7 @@ def news_click():
     # 바로 리디렉션
     return redirect(article_url)
 
+# 메일에서 뉴스링크 클릭 시 - 본문 링크로 노션페이지id 가져오기
 def get_page_id_by_url(article_url):
     #print(f"🔍 [조회 시작] URL 검색: {article_url}")
 
@@ -182,6 +180,7 @@ def get_page_id_by_url(article_url):
     #print(f"❌ 매치 실패 - URL이 DB에 존재하지 않음")
     return None
 
+# 메일에서 뉴스링크 클릭 시 - 조회수 증가
 def increment_view_count(page_id):
     #print(f"🆙 조회수 증가 시도 중... 페이지 ID: {page_id}")
 
@@ -214,16 +213,23 @@ def increment_view_count(page_id):
     except Exception as e:
         print(f"❌ 조회수 업데이트 실패: {e}")
 
+
+
+# 뉴스레터 구독 랜딩 페이지
 @app.route("/news-bot")
 def index():
     return send_from_directory(".", "index.html")
 
+
+
+# 사용자별 뉴스레터 수신시간 설정을 위한 10분 로그인 랜딩 페이지
 @app.route("/login-request")
 def login_request():
     return send_from_directory(".", "login-request.html")    
 
 login_tokens = {}  # 메모리 저장
 
+# 사용자별 뉴스레터 수신시간 설정을 위한 10분 로그인 링크 보내기
 @app.route("/send-magic-link", methods=["POST"])
 def send_magic_link():
     email = request.get_json().get("email")
@@ -236,6 +242,9 @@ def send_magic_link():
     # ✅ POST 응답 후 GET 요청을 리디렉션으로 처리
     return jsonify({"message": "메일이 전송되었습니다."})
 
+
+
+# 사용자 메일 수신 시간 설정 링크
 @app.route("/preferences")
 def preferences():
     email = request.args.get("email")
@@ -250,6 +259,24 @@ def preferences():
     
     return send_from_directory('.', 'preferences.html')
 
+# 사용자의 메일 수신 시간 정보 가져오기 
+@app.route("/get-preferences", methods=["GET"])
+def get_preferences():
+    email = request.args.get("email")
+    if not email:
+        return jsonify({"error": "이메일이 없습니다"}), 400
+
+    recipients = load_recipients()
+    for person in recipients:
+        if person["email"] == email:
+            return jsonify({
+                "name": person.get("name", ""),
+                "time_slots": person.get("time_slots", [])
+            }), 200
+
+    return jsonify({"name": "", "time_slots": []})  # 신규 유저 or 설정 없음
+
+# 사용자의 메일 수신 시간 정보 업데이트하기
 @app.route("/update-preferences", methods=["POST"])
 def update_preferences():
     data = request.get_json()
@@ -266,26 +293,6 @@ def update_preferences():
     
     save_recipients(recipients)
     return jsonify({"message": "설정이 저장되었습니다 ✅"})
-
-
-
-
-
-
-
-@app.route("/get-preferences", methods=["GET"])
-def get_preferences():
-    email = request.args.get("email")
-    if not email:
-        return jsonify({"error": "이메일이 없습니다"}), 400
-
-    recipients = load_recipients()
-    for person in recipients:
-        if person["email"] == email:
-            return jsonify({"time_slots": person.get("time_slots", [])}), 200
-
-    return jsonify({"time_slots": []})  # 구독자는 있지만 설정이 없거나, 신규 유저
-
 
 
 

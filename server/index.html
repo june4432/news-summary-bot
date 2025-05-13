@@ -156,6 +156,59 @@
       color: #ccc;
     }
   }
+
+.time-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.time-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.toggle-option {
+  flex: 1 0 calc(33.333% - 10px);
+  min-width: 90px;
+  padding: 8px 0;
+  text-align: center;
+  border: 1.5px solid #1a73e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a73e8;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s ease;
+}
+
+.toggle-option input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-option:has(input:checked) {
+  background-color: #e0f0ff;
+  border-color: #1a73e8;
+  color: #1a73e8;
+  font-weight: bold;
+}
+
+/* 빈 칸을 위한 클래스 */
+.toggle-option.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .toggle-option {
+    flex: 1 0 100%;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -177,6 +230,31 @@
       <form onsubmit="submitForm(event, '/subscribe')">
         <input type="text" placeholder="닉네임을 입력하세요" name="name" required /><br />
         <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
+        <p class="time-title">✅ 수신 시간대를 선택하세요</p>
+        <div class="time-options">
+          <label class="toggle-option">
+            <input type="checkbox" name="time_slots" value="07:30" checked>
+            오전 7:30
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" name="time_slots" value="11:30" checked>
+            오전 11:30
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" name="time_slots" value="15:30" checked>
+            오후 3:30
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" name="time_slots" value="17:50" checked>
+            오후 5:50
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" name="time_slots" value="21:30" checked>
+            오후 9:30
+          </label>
+          <label class="toggle-option empty"></label>
+        </div>
+        </br>
         <button type="submit">구독 신청하기</button>
       </form>
     </div>
@@ -203,6 +281,13 @@
       event.preventDefault();
       const form = event.target;
       const data = Object.fromEntries(new FormData(form));
+
+      // ✅ 체크박스 데이터 수동으로 추출
+      // ✅ 체크박스 시간대 수동 수집
+      const selected = Array.from(form.querySelectorAll('input[name="time_slots"]:checked'))
+                            .map(cb => cb.value);
+      data.time_slots = selected;
+
       fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

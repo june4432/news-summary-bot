@@ -13,24 +13,24 @@ def send_magic_link_email(email, token):
     encoded_email = quote(email)
     magic_link = f"https://leeyoungjun.duckdns.org/preferences?email={encoded_email}&token={token}"
 
-    content = f"""
-    <div style="font-family: 'Segoe UI', 'Noto Sans KR', sans-serif; max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
-      <h2 style="color: #1a73e8; margin-top: 0;">🔐 뉴스레터 수신 설정 링크</h2>
-      <p style="font-size: 15px; color: #333;">안녕하세요!</p>
-      <p style="font-size: 15px; color: #333;">아래 버튼을 클릭하시면 뉴스레터 수신 시간대를 설정하실 수 있습니다. ⏰</p>
-      <div style="margin: 24px 0;">
-        <a href="{magic_link}" style="background: #34a853; color: white; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 15px;">
-          👉 수신 시간 설정하기
-        </a>
-      </div>
-      <p style="font-size: 13px; color: #777;">⚠️ 이 링크는 <strong>10분간만 유효</strong>합니다.</p>
-      <p style="font-size: 13px; color: #777;">감사합니다. 😊</p>
-    </div>
+    html = f"""\
+    <h2 style="color:#1a73e8;">🔐 뉴스레터 수신 설정 링크</h2>
+    <p style="font-size:15px; color:#333;">안녕하세요 👋</p>
+    <p style="font-size:15px; color:#333;">
+        아래 버튼을 클릭하시면 뉴스레터 수신 시간대를 설정하실 수 있습니다. ⏰
+    </p>
+    <p>
+      <a href="{magic_link}" style="display:inline-block; margin:20px 0; background:#34a853; color:white; padding:12px 20px; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px;">
+        👉 수신 시간 설정하기
+      </a>
+    </p>
+    <p style="font-size:13px; color:#777;">⚠️ 이 링크는 <strong>10분간만 유효</strong>합니다.</p>
+    <p style="font-size:13px; color:#777;">감사합니다 😊</p>
     """
 
-    msg = MIMEText(content, _charset="utf-8")
+    msg = MIMEText(html, "html", _charset="utf-8")
     msg["Subject"] = "🔐 뉴스레터 수신 설정 링크"
-    msg["From"] = formataddr(("뉴스봇", SMTP_USER))
+    msg["From"] = formataddr(("뉴스봇", "ai.newsbot.official@gmail.com"))
     msg["To"] = email
 
     try:

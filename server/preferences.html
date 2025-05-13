@@ -26,7 +26,7 @@
       text-align: center;
       padding: 50px 20px;
     }
-    
+
     .card {
       background: white;
       width: 100%;
@@ -137,7 +137,7 @@
 </head>
 <body>
   <div class="card">
-    <h2>⏰ 수신 시간대 설정</h2>
+    <h2 id="user-greeting">⏰ 뉴스레터 수신 시간대 선택</h2>
     <p>원하는 시간대를 선택하면<br>그 시간에만 뉴스레터를 받아볼 수 있어요.</p>
 
     <form id="timeForm">
@@ -168,6 +168,23 @@
       document.querySelectorAll('input[name="time"]').forEach(cb => {
         cb.checked = saved.includes(cb.value);
       });
+    }
+
+    async function loadPreferences() {
+    const res = await fetch(`/get-preferences?email=${encodeURIComponent(email)}`);
+    const result = await res.json();
+
+    // ✅ 이름 있으면 인삿말에 반영
+    const name = result.name || "";
+    if (name) {
+        document.getElementById("user-greeting").innerText = `⏰ ${name}님, 수신 시간대를 선택하세요`;
+    }
+
+    // ✅ 체크박스 반영
+    const saved = result.time_slots || [];
+    document.querySelectorAll('input[name="time"]').forEach(cb => {
+        cb.checked = saved.includes(cb.value);
+    });
     }
 
     document.getElementById("timeForm").addEventListener("submit", async function(event) {

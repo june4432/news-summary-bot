@@ -22,7 +22,7 @@
       text-align: center;
       padding: 50px 20px;
     }
-    
+
     *, *::before, *::after {
       box-sizing: inherit;
     }
@@ -79,9 +79,13 @@
     }
 
     #status {
-      margin-top: 20px;
-      color: green;
-      font-size: 14px;
+        margin-top: 20px;
+        font-size: 14px;
+        color: green;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
     }
 
     @media (max-width: 480px) {
@@ -129,6 +133,17 @@
         color: #90ee90;
       }
     }
+
+    @keyframes dots {
+        0% { content: "."; }
+        33% { content: ".."; }
+        66% { content: "..."; }
+    }
+
+    #spinner::after {
+    content: "...";
+    animation: dots 1.5s steps(3, end) infinite;
+    }
   </style>
 </head>
 <body>
@@ -137,32 +152,52 @@
     <p>이메일 주소를 입력하면<br>수신 시간 설정 링크를 보내드려요.</p>
     <form id="login-form">
       <input type="email" id="email" name="email" placeholder="이메일 주소 입력" required />
-      <button type="submit">로그인 링크 받기</button>
+      <button type="submit" id="submit-btn">
+        <span id="btn-label">로그인 링크 받기</span>
+      </button>
     </form>
-    <div id="status"></div>
+    <div id="status">
+        <span id="status-message"></span>
+        <span id="spinner" style="display:none; margin-left: 8px;">⏳</span>
+    </div>
   </div>
 
   <script>
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
+    const statusBox = document.getElementById('status');
+    const statusText = document.getElementById('status-message');
+    const spinner = document.getElementById('spinner');
+    const form = document.getElementById('login-form');
+    const button = document.getElementById('submit-btn');
+    const label = document.getElementById('btn-label');
+  
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       const email = document.getElementById('email').value;
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = "";
-
+  
+      statusText.textContent = "";
+      statusBox.style.color = "inherit";  // 초기화
+      button.disabled = true;
+      label.textContent = "링크 전송 중...";
+      spinner.style.display = "inline-block";
+  
       try {
         const response = await fetch("/send-magic-link", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
         });
-
+  
         const result = await response.json();
-        statusEl.textContent = result.message || "응답 없음";
-        statusEl.style.color = "green";
+        statusText.textContent = result.message || "응답 없음";
+        statusBox.style.color = "green";
       } catch (err) {
-        statusEl.textContent = "❌ 오류가 발생했어요. 다시 시도해주세요.";
-        statusEl.style.color = "red";
+        statusText.textContent = "❌ 오류가 발생했어요. 다시 시도해주세요.";
+        statusBox.style.color = "red";
         console.error(err);
+      } finally {
+        button.disabled = false;
+        label.textContent = "로그인 링크 받기";
+        spinner.style.display = "none";
       }
     });
   </script>

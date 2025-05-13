@@ -52,7 +52,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
                     {summary_html}
                 </div>
                 {tag_html}
-                <a href="{newsletter_url}/news-click?url={article['url']}" style="display:inline-block; margin-top:8px; padding:6px 12px; background:#34a853; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
+                <a href="{newsletter_url}/news-click?url={article['url']}" style="display:inline-block; margin-top:8px; padding:6px 12px; background:#1a73e8; color:white; border-radius:4px; text-decoration:none; font-size:13px;">
                 📄 본문 보러가기
                 </a>
             </div>
@@ -63,7 +63,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
     html += f"""
         <div style="text-align: center; margin-top: 40px;">
             <a href="{newsletter_url}/login-request" 
-            style="display:inline-block; margin:4px; padding:10px 16px; background:#1a73e8; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
+            style="display:inline-block; margin:4px; padding:10px 16px; background:#34a853; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
                 ⏰ 수신 시간 설정
             </a>
             <a href="{notion_url}" 
@@ -76,7 +76,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
             </a>
         </div>
     """ 
-    
+
     return html
 
 def get_email_subject():
