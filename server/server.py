@@ -78,7 +78,7 @@ def unsubscribe_button():
     save_recipients(updated)
 
     if len(updated) == len(recipients):
-        return send_from_directory('.', 'invalid_email.html')
+        return send_from_directory('.', 'time_expired.html')
 
     return f"""
     <html>
