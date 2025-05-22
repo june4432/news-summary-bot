@@ -2,6 +2,26 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <!-- 검색엔진에 노출되도록 설정 -->
+  <meta name="robots" content="index, follow" />
+
+  <!-- 설명: 검색 결과에서 보이는 요약문 -->
+  <meta name="description" content="AI가 요약한 경제, 사회, 국제 뉴스를 매일 이메일로 받아보세요. 원하는 시간대에 자동 수신이 가능합니다. 📬" />
+
+  <!-- 키워드 (선택사항이나 큰 효과는 없음) -->
+  <meta name="keywords" content="AI 뉴스레터, 경제 뉴스 요약, 자동 뉴스 요약, 이메일 구독" />
+
+  <!-- 오픈그래프: SNS 공유용 -->
+  <meta property="og:title" content="AI 뉴스레터 구독 서비스" />
+  <meta property="og:description" content="AI가 요약한 최신 뉴스를 매일 이메일로 받아보세요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourdomain.com/newsletter" />
+  <meta property="og:image" content="https://yourdomain.com/thumbnail.png" /> <!-- 썸네일 이미지가 있다면 -->
+
+  <!-- 트위터 카드 -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AI 뉴스레터 구독 서비스" />
+  <meta name="twitter:description" content="AI가 요약한 뉴스를 원하는 시간대에 받아보세요." />
   <title>AI 뉴스레터 구독 서비스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
@@ -210,6 +230,15 @@
 }
 
   </style>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5W3SXG0M8J"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-5W3SXG0M8J');
+  </script>
 </head>
 <body>
   <div class="card">

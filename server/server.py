@@ -296,7 +296,15 @@ def update_preferences():
 
 
 
+# robots.txt 제공 라우트 추가
+@app.route('/robots.txt')
+def robots_txt():
+    return send_from_directory('.', 'robots.txt')  # 현재 디렉토리 기준
 
+@app.route("/news-bot/")  # ← 이거도 추가해두는게 좋음
+def news_bot_slash():
+    return redirect("/news-bot")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)
+    app.url_map.strict_slashes = False

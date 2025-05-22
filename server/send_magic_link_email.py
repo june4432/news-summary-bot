@@ -6,8 +6,8 @@ import os
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_USER = "ai.newsbot.official@gmail.com"
-SMTP_PASS = "wduwsdxocutwfyiu"
+SMTP_USER = os.getenv("SENDER_EMAIL")
+SMTP_PASS = os.getenv("SENDER_APP_PASSWORD")
 
 def send_magic_link_email(email, token):
     encoded_email = quote(email)
