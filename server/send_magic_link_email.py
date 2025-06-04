@@ -9,6 +9,9 @@ SMTP_PORT = 587
 SMTP_USER = os.getenv("SENDER_EMAIL")
 SMTP_PASS = os.getenv("SENDER_APP_PASSWORD")
 
+print(SMTP_USER)
+print(SMTP_PASS)
+
 def send_magic_link_email(email, token):
     encoded_email = quote(email)
     magic_link = f"https://leeyoungjun.duckdns.org/preferences?email={encoded_email}&token={token}"
@@ -30,7 +33,7 @@ def send_magic_link_email(email, token):
 
     msg = MIMEText(html, "html", _charset="utf-8")
     msg["Subject"] = "🔐 뉴스레터 수신 설정 링크"
-    msg["From"] = formataddr(("뉴스봇", "ai.newsbot.official@gmail.com"))
+    msg["From"] = formataddr(("AI뉴스봇🤖", "ai.newsbot.official@gmail.com"))
     msg["To"] = email
 
     try:

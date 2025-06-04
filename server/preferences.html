@@ -138,7 +138,7 @@
 <body>
   <div class="card">
     <h2 id="user-greeting">⏰ 뉴스레터 수신 시간대 선택</h2>
-    <p>원하는 시간대를 선택하면<br>그 시간에만 뉴스레터를 받아볼 수 있어요.</p>
+    <p>원하는 시간을 선택하면<br>그 시간에만 뉴스레터를 받아볼 수 있어요.</p>
 
     <form id="timeForm">
       <label><input type="checkbox" name="time" value="07:30" /> 오전 7:30 (아침 뉴스)</label>
@@ -177,7 +177,8 @@
     // ✅ 이름 있으면 인삿말에 반영
     const name = result.name || "";
     if (name) {
-        document.getElementById("user-greeting").innerText = `⏰ ${name}님, 수신 시간대를 선택하세요`;
+        document.getElementById("user-greeting").innerText = `반가워요 ${name}님!
+        뉴스레터를 받을 시간을 선택하세요. 📌`;
     }
 
     // ✅ 체크박스 반영

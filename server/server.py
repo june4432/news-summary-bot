@@ -250,9 +250,6 @@ def preferences():
     email = request.args.get("email")
     token = request.args.get("token")
 
-    print(email)
-    print(token)
-    
     entry = login_tokens.get(email)
     if not entry or token != entry['token'] or datetime.utcnow() > entry['expiry']:
         return send_from_directory('.', '401.html'), 401        
@@ -307,4 +304,5 @@ def news_bot_slash():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)
+#    app.run(host="127.0.0.1", port=9000, debug=True)
     app.url_map.strict_slashes = False
