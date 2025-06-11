@@ -9,7 +9,15 @@ from urllib.parse import quote
 from send_magic_link_email import send_magic_link_email
 
 app = Flask(__name__)
-RECIPIENTS_FILE = "../recipients.json"
+RECIPIENTS_FILE = "../recipients_email.json"
+TELEGRAM_RECIPIENTS_FILE = "../recipients_telegram.json"
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+def send_message(chat_id, text):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    data = {"chat_id": chat_id, "text": text}
+    response = requests.post(url, data=data)
+    print(response.json())  # 또는 logger.info(response.json())
 
 # Load recipients from file or initialize empty list
 def load_recipients():
@@ -22,6 +30,17 @@ def load_recipients():
 def save_recipients(data):
     with open(RECIPIENTS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+
+def load_recipients_telegram():
+    try:
+        with open(TELEGRAM_RECIPIENTS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_recipients_telegram(data):
+    with open(TELEGRAM_RECIPIENTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 # 랜딩페이지에서 구독 기능
 @app.route("/subscribe", methods=["POST"])
@@ -45,6 +64,7 @@ def subscribe():
         "subscribed_at": timestamp,
         "time_slots": time_slots  # ✅ 시간대도 함께 저장
     })
+    print(f"✅ 개인 페이지 수정 → {recipients}")
     save_recipients(recipients)
     return jsonify({"message": "구독이 완료되었습니다. 🎉"}), 200
 
@@ -63,6 +83,8 @@ def unsubscribe():
     if len(updated) == len(recipients):
         return jsonify({"message": "해당 이메일은 구독 목록에 없습니다."}), 404
 
+    print(f"구독 해제 신청 → {email}")
+
     save_recipients(updated)
     return jsonify({"message": "구독이 해제되었습니다."}), 200
 
@@ -79,6 +101,8 @@ def unsubscribe_button():
 
     if len(updated) == len(recipients):
         return send_from_directory('.', 'time_expired.html')
+
+    print(f"이메일 구독 해제 버튼 클릭 → {email}")
 
     return f"""
     <html>
@@ -143,6 +167,7 @@ def news_click():
 # 메일에서 뉴스링크 클릭 시 - 본문 링크로 노션페이지id 가져오기
 def get_page_id_by_url(article_url):
     #print(f"🔍 [조회 시작] URL 검색: {article_url}")
+    print(f"🔍 [조회 시작] URL 검색: {article_url}")
 
     notion_token = os.getenv("NOTION_TOKEN")
     database_id = os.getenv("NOTION_DATABASE_ID")
@@ -162,27 +187,27 @@ def get_page_id_by_url(article_url):
 
         response = requests.post(url, headers=headers, json=payload)
         data = response.json()
-        #print("📦 Notion 응답 구조:\n", json.dumps(data, indent=2, ensure_ascii=False))
+        print("📦 Notion 응답 구조:\n", json.dumps(data, indent=2, ensure_ascii=False))
 
         for result in data.get("results", []):
             props = result.get("properties", {})
             stored_url = props.get("기사 링크", {}).get("url")
 
-            #print(f"🔎 Notion URL 확인 중: {stored_url}")
+            print(f"🔎 Notion URL 확인 중: {stored_url}")
             stored_url = props.get("기사 링크", {}).get("url")
             if stored_url and stored_url.rstrip('/') == article_url.rstrip('/'):
-                #print(f"🎯 매치 성공! page_id = {result['id']}")
+                print(f"🎯 매치 성공! page_id = {result['id']}")
                 return result["id"]
 
         has_more = data.get("has_more", False)
         next_cursor = data.get("next_cursor", None)
 
-    #print(f"❌ 매치 실패 - URL이 DB에 존재하지 않음")
+    print(f"❌ 매치 실패 - URL이 DB에 존재하지 않음")
     return None
 
 # 메일에서 뉴스링크 클릭 시 - 조회수 증가
 def increment_view_count(page_id):
-    #print(f"🆙 조회수 증가 시도 중... 페이지 ID: {page_id}")
+    print(f"🆙 조회수 증가 시도 중... 페이지 ID: {page_id}")
 
     notion_token = os.getenv("NOTION_TOKEN")
     headers = {
@@ -198,7 +223,7 @@ def increment_view_count(page_id):
         curr_raw = props.get("조회수", {}).get("number", 0)
         curr_count = curr_raw if curr_raw is not None else 0
 
-        #print(f"👁 기존 조회수: {curr_count}")
+        print(f"👁 기존 조회수: {curr_count}")
 
         data = {
             "properties": {
@@ -208,7 +233,7 @@ def increment_view_count(page_id):
 
         patch_res = requests.patch(f"https://api.notion.com/v1/pages/{page_id}", headers=headers, json=data)
         patch_res.raise_for_status()
-        #print(f"✅ 조회수 업데이트 완료! → {curr_count + 1}")
+        print(f"✅ 조회수 업데이트 완료! → {curr_count + 1}")
 
     except Exception as e:
         print(f"❌ 조회수 업데이트 실패: {e}")
@@ -233,6 +258,13 @@ login_tokens = {}  # 메모리 저장
 @app.route("/send-magic-link", methods=["POST"])
 def send_magic_link():
     email = request.get_json().get("email")
+
+    allowed_emails = load_recipients()
+
+    # ✅ 이메일이 허용된 목록에 있는지 확인
+    if not any(r["email"] == email for r in allowed_emails):
+        return jsonify({"message": "등록되지 않은 이메일입니다."}), 200
+
     token = secrets.token_urlsafe(16)
     expiry = datetime.utcnow() + timedelta(minutes=10)
     login_tokens[email] = {"token": token, "expiry": expiry}
@@ -279,15 +311,17 @@ def update_preferences():
     data = request.get_json()
     email = data.get("email")
     selected_times = data.get("time_slots", [])
-    
+    name = data.get("name", "")  # 닉네임 추가
+
     recipients = load_recipients()
     for person in recipients:
         if person['email'] == email:
             person['time_slots'] = selected_times
+            person['name'] = name  # 닉네임 업데이트
             break
     else:
-        recipients.append({"email": email, "time_slots": selected_times})
-    
+        recipients.append({"email": email, "time_slots": selected_times, "name": name})
+
     save_recipients(recipients)
     return jsonify({"message": "설정이 저장되었습니다 ✅"})
 
@@ -301,6 +335,61 @@ def robots_txt():
 @app.route("/news-bot/")  # ← 이거도 추가해두는게 좋음
 def news_bot_slash():
     return redirect("/news-bot")
+
+@app.route("/webhook", methods=["POST"])
+def telegram_webhook():
+    data = request.json
+    message = data.get("message", {})
+    chat_id = message.get("chat", {}).get("id")
+    text = message.get("text", "")
+
+    recipients = load_recipients_telegram()
+
+    if text == "/start":
+        existing = next((r for r in recipients if r["chat_id"] == chat_id), None)
+
+        if existing:
+            if existing.get("subscribed", True):
+                send_message(chat_id, "🙌 이미 뉴스 구독 중입니다. 매일 아침 뉴스가 발송됩니다!")
+            else:
+                existing["subscribed"] = True
+                save_recipients_telegram(recipients)
+                send_message(chat_id, "✅ 구독을 다시 시작했습니다. 다음 스케줄부터 뉴스가 발송됩니다!")
+        else:
+            recipients.append({"chat_id": chat_id, "subscribed": True})
+            save_recipients_telegram(recipients)
+            send_message(chat_id,
+                "👋 안녕하세요! 경제 뉴스 요약 봇입니다.\n\n"
+                "📰 매일 아침 주요 뉴스가 요약되어 도착합니다!\n"
+                "/stop - 뉴스 수신 중지\n"
+                "/status - 구독 상태 확인\n"
+            )
+
+    elif text == "/stop":
+        for r in recipients:
+            if r["chat_id"] == chat_id:
+                r["subscribed"] = False
+        save_recipients_telegram(recipients)
+        send_message(chat_id, "⛔️ 뉴스 구독이 해제되었습니다.")
+    
+    elif text == "/status":
+        user = next((r for r in recipients if r["chat_id"] == chat_id), None)
+        if user and user.get("subscribed", True):
+            send_message(chat_id, "✅ 현재 뉴스 구독 중입니다.")
+        else:
+            send_message(chat_id, "❌ 구독되어 있지 않습니다. /start 로 다시 시작하세요.")
+
+    elif text == "/help":
+        help_message = (
+            "🆘 도움말\n\n"
+            "/start - 뉴스 구독 시작\n"
+            "/stop - 뉴스 구독 중지\n"
+            "/status - 내 구독 상태 확인\n"
+            "/help - 이 메시지 보기"
+        )
+        send_message(chat_id, help_message)
+
+    return "OK"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)

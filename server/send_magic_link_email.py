@@ -41,6 +41,6 @@ def send_magic_link_email(email, token):
             smtp.starttls()
             smtp.login(SMTP_USER, SMTP_PASS)
             smtp.send_message(msg)
-        print(f"✅ 메일 전송 완료 → {email}")
+            print(f"✅ 수신정보 설정 메일 전송 완료 → {email}")
     except Exception as e:
-        print(f"❌ 메일 전송 실패 → {email}\n{e}")
+        print(f"❌ 수신정보 설정 메일 전송 실패 → {email}\n{e}")

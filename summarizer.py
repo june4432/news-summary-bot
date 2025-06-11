@@ -2,6 +2,7 @@ import requests
 import re
 import datetime
 from log import logger
+from telegram_formatter import escape_markdown_v2  # 너가 만든 함수 import
 
 def summarize_news_via_api(title, content, api_key):
     url = "https://api.openai.com/v1/chat/completions"
@@ -46,22 +47,36 @@ def summarize_news_via_api(title, content, api_key):
         return extract_summary_and_tags(text)
     else:
         logger.error(f"❌ GPT 호출 오류: {response.status_code} {response.text}", exc_info=True)
-        return "요약 실패", []
+        # ✅ 항상 3개를 반환하도록 수정
+        return "요약 실패", [], ""
 
 def extract_summary_and_tags(text):
     parts = text.strip().split('\n')
     summary_lines = []
     tags = []
+    emoji = ""
 
     for line in parts:
-        if line.strip().startswith('[') and line.strip().endswith(']'):
+        line = line.strip()
+        if line.startswith('[') and line.endswith(']'):
+            # ✅ 태그 추출
             tag_match = re.search(r"\[(.*?)\]", line)
             if tag_match:
-                tags = [t.strip('" ') for t in tag_match.group(1).split(',')]
+                tags = [t.strip('" ').replace(" ", "_") for t in tag_match.group(1).split(',')]
             break
         else:
-            summary_lines.append(line.strip())
+            summary_lines.append(line)
 
-    logger.info(f"📄 추출된 요약: {' '.join(summary_lines)}")
-    logger.info(f"🏷️ 추출된 태그: {tags}")
-    return "\n".join(summary_lines), tags
+    # ✅ 마지막 줄에서 이모지 추출 (유니코드 이모지 범위 기반)
+    if summary_lines:
+        last_line = summary_lines[-1]
+        # 유니코드 범위: 이모지 추출 (표정/기호 등 포함)
+        emoji_match = re.search(r'([\U0001F300-\U0001FAFF]|\u2600-\u26FF|\u2700-\u27BF)$', last_line)
+        if emoji_match:
+            emoji = emoji_match.group(1)
+            summary_lines[-1] = last_line.rstrip(emoji).strip()
+
+    logger.info(f"📄 추출된 요약: {' / '.join(summary_lines)}")
+    logger.info(f"🏷️ 태그: {tags}")
+    logger.info(f"✨ 추출된 이모지: {emoji}")
+    return "\n".join(summary_lines), tags, emoji

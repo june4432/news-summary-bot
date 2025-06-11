@@ -46,7 +46,7 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
             html += f"""
             <div style='margin-bottom: 24px;'>
                 <div style='font-size:16px; font-weight:bold; line-height: 1.4;'>
-                    {idx}. {article['title']}
+                    {idx}. {article['title']} {article.get('emoji', "")}
                 </div>
                 <div style='line-height: 1.6; margin-top: 2px;'>
                     {summary_html}
