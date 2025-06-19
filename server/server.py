@@ -5,13 +5,16 @@ import requests
 from datetime import datetime, timedelta
 from threading import Thread
 import secrets
-from urllib.parse import quote
+from urllib.parse import quote, urlencode, unquote
 from send_magic_link_email import send_magic_link_email
+import jwt
 
 app = Flask(__name__)
 RECIPIENTS_FILE = "../recipients_email.json"
 TELEGRAM_RECIPIENTS_FILE = "../recipients_telegram.json"
+NEWSLETTER_URL = os.getenv("NEWSLETTER_URL")
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+SECRET_TOKEN_FOR_LOGIN = os.getenv("SECRET_TOKEN_FOR_LOGIN")
 
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -258,21 +261,26 @@ login_tokens = {}  # 메모리 저장
 @app.route("/send-magic-link", methods=["POST"])
 def send_magic_link():
     email = request.get_json().get("email")
-
     allowed_emails = load_recipients()
 
-    # ✅ 이메일이 허용된 목록에 있는지 확인
     if not any(r["email"] == email for r in allowed_emails):
         return jsonify({"message": "등록되지 않은 이메일입니다."}), 200
 
-    token = secrets.token_urlsafe(16)
+    # ✅ JWT 토큰 생성
     expiry = datetime.utcnow() + timedelta(minutes=10)
-    login_tokens[email] = {"token": token, "expiry": expiry}
+    token = jwt.encode(
+        {"email": email, "exp": expiry},
+        SECRET_TOKEN_FOR_LOGIN,
+        algorithm="HS256"
+    )
 
-    send_magic_link_email(email, token)  # ✅ 여기서 호출
+    # ✅ 로그인 링크 생성
+    magic_link_url = f"{NEWSLETTER_URL}/news-settings?token={token}"
 
-    # ✅ POST 응답 후 GET 요청을 리디렉션으로 처리
-    return jsonify({"message": "메일이 전송되었습니다."})
+    # ✅ 이메일 전송 (링크 포함)
+    send_magic_link_email(email, magic_link_url)
+
+    return jsonify({"message": "메일이 전송되었습니다."}), 200
 
 
 
@@ -282,10 +290,26 @@ def preferences():
     email = request.args.get("email")
     token = request.args.get("token")
 
+    # ✅ 1. 토큰 기반 접근 처리
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_TOKEN_FOR_LOGIN, algorithms=["HS256"])
+            email = payload.get("email")
+            if not email:
+                return send_from_directory('.', '401.html'), 401
+        except jwt.ExpiredSignatureError:
+            return send_from_directory('.', '401.html'), 401
+        except jwt.InvalidTokenError:
+            return send_from_directory('.', '401.html'), 401
+
+        # 토큰 유효 → preferences.html 서빙
+        return send_from_directory('.', 'preferences.html')
+
+    # ✅ 2. 기존 방식 (magic link 방식)
     entry = login_tokens.get(email)
     if not entry or token != entry['token'] or datetime.utcnow() > entry['expiry']:
-        return send_from_directory('.', '401.html'), 401        
-    
+        return send_from_directory('.', '401.html'), 401
+
     return send_from_directory('.', 'preferences.html')
 
 # 사용자의 메일 수신 시간 정보 가져오기 
@@ -390,6 +414,72 @@ def telegram_webhook():
         send_message(chat_id, help_message)
 
     return "OK"
+
+@app.route("/news-settings")
+def settings():
+    token = request.args.get("token", "").strip()
+    if not token:
+        return "Missing token", 400
+
+    result = decode_token_safe(token)
+    if "error" in result:
+        return result["error"], 400
+
+    email = result["payload"].get("email")
+    if not email:
+        return "Invalid token", 400
+
+    # ✅ 이중 인코딩 방지 & 깨끗한 token 사용
+    query = urlencode({"token": result["token"]})
+    return redirect(f"/preferences?{query}")
+
+@app.route("/get-preferences-by-token", methods=["GET"])
+def get_preferences_by_token():
+    token = request.args.get("token", "")
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+
+    result = decode_token_safe(token)
+    if "error" in result:
+        return jsonify({"error": result["error"]}), 400
+
+    payload = result["payload"]
+    email = payload.get("email")
+    if not email:
+        return jsonify({"error": "Invalid token"}), 400
+
+    # ✅ URL 디코딩 (email에 %2B → +, %40 → @ 적용)
+    email = unquote(email)
+
+    recipients = load_recipients()
+    for person in recipients:
+        if person["email"] == email:
+            return jsonify({
+                "email": person["email"],
+                "name": person.get("name", ""),
+                "time_slots": person.get("time_slots", [])
+            })
+
+    return jsonify({
+        "email": email,
+        "name": "",
+        "time_slots": []
+    })
+
+def decode_token_safe(token: str):
+    # ✅ b'...' 또는 b"..." 형식 제거
+    if token.startswith("b'") and token.endswith("'"):
+        token = token[2:-1]
+    elif token.startswith('b"') and token.endswith('"'):
+        token = token[2:-1]
+
+    try:
+        payload = jwt.decode(token, SECRET_TOKEN_FOR_LOGIN, algorithms=["HS256"])
+        return {"payload": payload, "token": token}  # ✅ 깨끗한 token도 같이 반환
+    except jwt.ExpiredSignatureError:
+        return {"error": "Token expired"}
+    except jwt.InvalidTokenError:
+        return {"error": "Invalid token"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000, debug=True)

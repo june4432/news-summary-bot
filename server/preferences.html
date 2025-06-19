@@ -189,46 +189,79 @@
     <div id="status"></div>
   </div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
-    document.getElementById("emailField").value = email;
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const emailParam = urlParams.get('email');
+  const emailField = document.getElementById("emailField");
 
-    async function loadPreferences() {
-      const res = await fetch(`/get-preferences?email=${encodeURIComponent(email)}`);
+  async function loadPreferences() {
+    if (token) {
+      // ✅ JWT 기반 접근
+      const res = await fetch(`/get-preferences-by-token?token=${encodeURIComponent(token)}`);
       const result = await res.json();
 
-      // ✅ 닉네임 반영
+      if (result.error) {
+        document.getElementById("status").innerText = "❌ 인증에 실패했습니다.";
+        return;
+      }
+
       const name = result.name || "";
       if (name) {
         document.getElementById("user-greeting").innerText = `반가워요 ${name}님!\n뉴스레터를 받을 시간을 선택하세요. 📌`;
         document.getElementById("nickname").value = name;
       }
 
-      // ✅ 체크박스 반영
+      // ✅ JWT로부터 추출한 이메일 저장
+      emailField.value = result.email;
+
       const saved = result.time_slots || [];
-        document.querySelectorAll('input[name="time"]').forEach(cb => {
-          cb.checked = saved.includes(cb.value);
-        });
-    }
-
-    document.getElementById("timeForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
-      const checkboxes = document.querySelectorAll('input[name="time"]:checked');
-      const selected = Array.from(checkboxes).map(cb => cb.value);
-      const nickname = document.getElementById("nickname").value;
-
-      const res = await fetch("/update-preferences", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, name: nickname, time_slots: selected })
+      document.querySelectorAll('input[name="time"]').forEach(cb => {
+        cb.checked = saved.includes(cb.value);
       });
 
+    } else if (emailParam) {
+      // ✅ 기존 방식: 쿼리스트링으로 이메일 접근
+      const decodedEmail = decodeURIComponent(emailParam);
+      emailField.value = decodedEmail;
+
+      const res = await fetch(`/get-preferences?email=${encodeURIComponent(decodedEmail)}`);
       const result = await res.json();
-      document.getElementById("status").innerText = result.message || "저장 실패!";
+
+      const name = result.name || "";
+      if (name) {
+        document.getElementById("user-greeting").innerText = `반가워요 ${name}님!\n뉴스레터를 받을 시간을 선택하세요. 📌`;
+        document.getElementById("nickname").value = name;
+      }
+
+      const saved = result.time_slots || [];
+      document.querySelectorAll('input[name="time"]').forEach(cb => {
+        cb.checked = saved.includes(cb.value);
+      });
+    }
+  }
+
+  document.getElementById("timeForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    const checkboxes = document.querySelectorAll('input[name="time"]:checked');
+    const selected = Array.from(checkboxes).map(cb => cb.value);
+    const nickname = document.getElementById("nickname").value;
+
+    const res = await fetch("/update-preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: emailField.value,
+        name: nickname,
+        time_slots: selected
+      })
     });
 
-    if (email) loadPreferences();
-  </script>
+    const result = await res.json();
+    document.getElementById("status").innerText = result.message || "저장 실패!";
+  });
+
+  loadPreferences();
+</script>
 </body>
 </html>

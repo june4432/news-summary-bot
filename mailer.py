@@ -6,6 +6,7 @@ from urllib.parse import quote
 from log import logger
 from config import newsletter_url 
 from email.utils import formataddr
+from token_manager import generate_token
 
 def send_email(sender, app_password, recipient, subject, body):
     try:
@@ -62,11 +63,14 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
 
     unsubscribe_email = quote(recipient_email) # ➜ xxx%2Bnewsbot@gmail.com
     
+    token = generate_token(unsubscribe_email)
+    encrypted_link = f"{newsletter_url}/news-settings?token={token}"
+
     html += f"""
         <div style="text-align: center; margin-top: 40px;">
-            <a href="{newsletter_url}/login-request" 
+            <a href="{encrypted_link}" 
             style="display:inline-block; margin:4px; padding:10px 16px; background:#34a853; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
-                ⏰ 수신 시간 설정
+                ⚙️ 개인 구독 설정
             </a>
             <a href="{notion_url}" 
             style="display:inline-block; margin:4px; padding:10px 16px; background:#5f6368; color:white; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold;">
