@@ -31,10 +31,11 @@ def build_telegram_message(news_data, max_articles=10):
 
     categorized = defaultdict(list)
     for article in news_data:
-        categorized[article.get("category", "기타")].append(article)
+        display_key = f"{article['source']} - {article['category']}"
+        categorized[display_key].append(article)
 
-    for category, articles in categorized.items():
-        lines.append(f"📢 *[{escape_markdown_v2(category)} 뉴스 요약]*\n")
+    for display_key, articles in categorized.items():
+        lines.append(f"📢 *[{escape_markdown_v2(display_key)} 뉴스 요약]*\n")
 
         count = 1
         for article in articles:

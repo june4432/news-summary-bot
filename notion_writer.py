@@ -59,6 +59,11 @@ def save_to_notion(article, notion_token, notion_database_id):
         },
         "카테고리": {
             "select": {"name": article.get("category", "미분류")}
+        },
+        "신문사": {
+            "select": {
+                "name": article["source"]
+            }
         }
     }
 
@@ -93,22 +98,37 @@ def get_existing_urls_from_notion(notion_token, notion_database_id):
         "Notion-Version": "2022-06-28",
         "Content-Type": "application/json"
     }
+
+    since = (datetime.utcnow() - timedelta(days=2)).isoformat()  # ✅ 최근 2일 기준
+
+    body = {
+        "filter": {
+            "property": "스크랩 시간",  # ✅ 너의 DB에 있는 날짜 속성 이름
+            "date": {
+                "after": since
+            }
+        },
+        "page_size": 100
+    }
+
     existing_urls = set()
     has_more = True
     next_cursor = None
 
     while has_more:
-        body = {"start_cursor": next_cursor} if next_cursor else {}
+        if next_cursor:
+            body["start_cursor"] = next_cursor
+
         response = requests.post(url, headers=headers, json=body)
         data = response.json()
 
         for result in data.get("results", []):
             props = result.get("properties", {})
-            url_prop = props.get("기사 링크", {}).get("url")
+            url_prop = props.get("기사 링크", {}).get("url")  # ✅ 너가 사용하는 URL 필드명 유지
             if url_prop:
                 existing_urls.add(url_prop)
 
         has_more = data.get("has_more", False)
         next_cursor = data.get("next_cursor", None)
 
-    return existing_urls        
+    return existing_urls

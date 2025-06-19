@@ -36,10 +36,12 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
 
     categorized = defaultdict(list)
     for article in news_data:
-        categorized[article.get("category", "기타")].append(article)
+        display_key = f"{article['source']} - {article['category']}"
+        categorized[display_key].append(article)
 
-    for category, articles in categorized.items():
-        html += f"<h2 style='margin-top: 40px; margin-bottom: 12px; font-size: 20px; border-bottom: 2px solid #1a73e8; padding-bottom: 4px;'>🗂️ {category} 뉴스</h2>"
+    # ✅ 본문 생성
+    for display_key, articles in categorized.items():
+        html += f"<h2 style='margin-top: 40px; margin-bottom: 12px; font-size: 20px; border-bottom: 2px solid #1a73e8; padding-bottom: 4px;'>🗂️ {display_key} 뉴스</h2>"
         for idx, article in enumerate(articles, start=1):
             summary_html = article['summary'].replace('\n', '<br>')
             tag_html = f"<div style='color: #888; font-size: 13px; margin-top: 4px;'>#" + " #".join(article.get('tags', [])) + "</div>" if article.get('tags') else ""

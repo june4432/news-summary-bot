@@ -17,7 +17,7 @@ from telegram_formatter import build_telegram_message
 RECIPIENTS_PATH = "/home/pi/project/news-summary-bot/recipients_email.json"
 # ✅ 텔레그램 메시지: 구독자 목록 기반 다중 전송
 TELEGRAM_RECIPIENTS_PATH = "/home/pi/project/news-summary-bot/recipients_telegram.json"
-TOLERANCE_MINUTES = 10  # 허용 오차 범위 (분 단위)
+TOLERANCE_MINUTES = 30  # 허용 오차 범위 (분 단위)
 
 def load_recipients(filepath=RECIPIENTS_PATH):
     with open(filepath, "r", encoding="utf-8") as f:
