@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect, render_template_string
+from flask import Flask, request, jsonify, send_from_directory, redirect, render_template_string, render_template
 import json
 import os
 import requests
@@ -9,12 +9,20 @@ from urllib.parse import quote, urlencode, unquote
 from send_magic_link_email import send_magic_link_email
 import jwt
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../templates")
 RECIPIENTS_FILE = "../recipients_email.json"
 TELEGRAM_RECIPIENTS_FILE = "../recipients_telegram.json"
 NEWSLETTER_URL = os.getenv("NEWSLETTER_URL")
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 SECRET_TOKEN_FOR_LOGIN = os.getenv("SECRET_TOKEN_FOR_LOGIN")
+
+def load_rss_sources():
+    with open("../rss_sources.json", "r", encoding="utf-8") as f:
+        sources = json.load(f)
+    grouped = {}
+    for item in sources:
+        grouped.setdefault(item["source"], []).append(item["category"])
+    return grouped
 
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -290,6 +298,8 @@ def preferences():
     email = request.args.get("email")
     token = request.args.get("token")
 
+    grouped = load_rss_sources()
+
     # ✅ 1. 토큰 기반 접근 처리
     if token:
         try:
@@ -303,14 +313,15 @@ def preferences():
             return send_from_directory('.', '401.html'), 401
 
         # 토큰 유효 → preferences.html 서빙
-        return send_from_directory('.', 'preferences.html')
+        return render_template("preferences.html", grouped_sources=grouped)
 
     # ✅ 2. 기존 방식 (magic link 방식)
     entry = login_tokens.get(email)
     if not entry or token != entry['token'] or datetime.utcnow() > entry['expiry']:
         return send_from_directory('.', '401.html'), 401
 
-    return send_from_directory('.', 'preferences.html')
+
+    return render_template("preferences.html", grouped_sources=grouped)
 
 # 사용자의 메일 수신 시간 정보 가져오기 
 @app.route("/get-preferences", methods=["GET"])
@@ -324,10 +335,11 @@ def get_preferences():
         if person["email"] == email:
             return jsonify({
                 "name": person.get("name", ""),
-                "time_slots": person.get("time_slots", [])
+                "time_slots": person.get("time_slots", []),
+                "categories": person.get("categories", [])
             }), 200
 
-    return jsonify({"name": "", "time_slots": []})  # 신규 유저 or 설정 없음
+    return jsonify({"name": "", "time_slots": [], "categories":[]})  # 신규 유저 or 설정 없음
 
 # 사용자의 메일 수신 시간 정보 업데이트하기
 @app.route("/update-preferences", methods=["POST"])
@@ -335,6 +347,7 @@ def update_preferences():
     data = request.get_json()
     email = data.get("email")
     selected_times = data.get("time_slots", [])
+    selected_categories = data.get("categories", [])
     name = data.get("name", "")  # 닉네임 추가
 
     recipients = load_recipients()
@@ -342,6 +355,7 @@ def update_preferences():
         if person['email'] == email:
             person['time_slots'] = selected_times
             person['name'] = name  # 닉네임 업데이트
+            person['categories'] = selected_categories
             break
     else:
         recipients.append({"email": email, "time_slots": selected_times, "name": name})
@@ -457,13 +471,15 @@ def get_preferences_by_token():
             return jsonify({
                 "email": person["email"],
                 "name": person.get("name", ""),
-                "time_slots": person.get("time_slots", [])
+                "time_slots": person.get("time_slots", []),
+                "categories": person.get("categories", [])
             })
 
     return jsonify({
         "email": email,
         "name": "",
-        "time_slots": []
+        "time_slots": [],
+        "categories": []
     })
 
 def decode_token_safe(token: str):

@@ -2,49 +2,40 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/static/emoji-favicon.svg" />
-  <!-- 검색엔진에 노출되도록 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="robots" content="index, follow" />
-
-  <!-- 설명: 검색 결과에서 보이는 요약문 -->
   <meta name="description" content="AI가 요약한 경제, 사회, 국제 뉴스를 매일 이메일로 받아보세요. 원하는 시간대에 자동 수신이 가능합니다. 📬" />
-
-  <!-- 키워드 (선택사항이나 큰 효과는 없음) -->
   <meta name="keywords" content="AI 뉴스레터, 경제 뉴스 요약, 자동 뉴스 요약, 이메일 구독" />
-
-  <!-- 오픈그래프: SNS 공유용 -->
   <meta property="og:title" content="AI 뉴스레터 구독 서비스" />
   <meta property="og:description" content="AI가 요약한 최신 뉴스를 매일 이메일로 받아보세요." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://yourdomain.com/newsletter" />
-  <meta property="og:image" content="https://yourdomain.com/thumbnail.png" /> <!-- 썸네일 이미지가 있다면 -->
-
-  <!-- 트위터 카드 -->
+  <meta property="og:image" content="https://yourdomain.com/thumbnail.png" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="AI 뉴스레터 구독 서비스" />
   <meta name="twitter:description" content="AI가 요약한 뉴스를 원하는 시간대에 받아보세요." />
+  <link rel="icon" type="image/svg+xml" href="/static/emoji-favicon.svg" />
   <title>AI 뉴스레터 구독 서비스</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      overflow-x: hidden; /* ✅ 스크롤 방지 */
+      overflow-x: hidden;
       box-sizing: border-box;
     }
-
     *, *::before, *::after {
-      box-sizing: inherit; /* ✅ 전체 요소 패딩/보더 포함 */
+      box-sizing: inherit;
     }
-
     body {
       font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
       background: #f4f6f8;
       text-align: center;
       padding: 50px 20px;
     }
-
     .card {
       background: white;
       width: 100%;
@@ -53,14 +44,12 @@
       padding: 30px 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      overflow-wrap: break-word; /* 긴 이메일 주소나 텍스트 줄바꿈 */
+      overflow-wrap: break-word;
     }
-
     h1 {
       font-size: 24px;
       margin-top: 0;
     }
-
     .tabs {
       margin-top: 20px;
       display: flex;
@@ -68,39 +57,35 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-
     .tab {
       padding: 10px 20px;
       cursor: pointer;
       font-weight: bold;
       border-bottom: 3px solid transparent;
     }
-
     .tab.active {
       border-color: #1a73e8;
       color: #1a73e8;
     }
-
     .form-section {
       display: none;
       margin-top: 30px;
     }
-
     .form-section.active {
       display: block;
     }
-
+    input, textarea, select, button {
+      font-size: 16px !important;
+    }
     input {
       width: 100%;
       max-width: 100%;
       padding: 14px;
       margin: 10px 0;
-      font-size: 16px;
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
-
     button {
       background: #1a73e8;
       color: white;
@@ -112,193 +97,111 @@
       width: 100%;
       box-sizing: border-box;
     }
-
     button[style*="background:#d93025"] {
       background: #d93025 !important;
     }
-
     #result {
       margin-top: 20px;
       color: #333;
       opacity: 0;
       transition: opacity 0.3s;
     }
-
     @media (max-width: 480px) {
-      h1 {
-        font-size: 20px;
-      }
-
-      .card {
-        padding: 20px 16px;
-      }
-
-      .tab {
-        font-size: 14px;
-        padding: 8px 14px;
-      }
-
-      button {
-        font-size: 15px;
-        padding: 12px;
-      }
-
-      input {
-        font-size: 16px; /* ✅ ios에서 input 터치 시 화면 확대 방지를 위해 15-> 16으로 변경 */
-        padding: 12px;
-      }
+      h1 { font-size: 20px; }
+      .card { padding: 20px 16px; }
+      .tab { font-size: 14px; padding: 8px 14px; }
+      button { font-size: 15px; padding: 12px; }
+      input { font-size: 16px; padding: 12px; }
     }
-
     @media (prefers-color-scheme: dark) {
-    body {
-      background: #121212;
-      color: #e0e0e0;
+      body { background: #121212; color: #e0e0e0; }
+      .card { background: #1e1e1e; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
+      input { background: #2b2b2b; color: #fff; border: 1px solid #555; }
+      button { background: #3f51b5; }
+      .tab.active { border-color: #90caf9; color: #90caf9; }
+      .tab { color: #aaa; }
+      #result { color: #ccc; }
     }
-    .card {
-      background: #1e1e1e;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    .time-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #222;
     }
-    input {
-      background: #2b2b2b;
-      color: #fff;
-      border: 1px solid #555;
+    .time-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
     }
-    button {
-      background: #3f51b5;
+    .toggle-option {
+      flex: 1 0 calc(33.333% - 10px);
+      min-width: 90px;
+      padding: 8px 0;
+      text-align: center;
+      border: 1.5px solid #1a73e8;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a73e8;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s ease;
     }
-    .tab.active {
-      border-color: #90caf9;
-      color: #90caf9;
+    .toggle-option input[type="checkbox"] { display: none; }
+    .toggle-option:has(input:checked) {
+      background-color: #e0f0ff;
+      border-color: #1a73e8;
+      color: #1a73e8;
+      font-weight: bold;
     }
-    .tab {
-      color: #aaa;
+    .toggle-option.empty {
+      visibility: hidden;
+      pointer-events: none;
     }
-    #result {
-      color: #ccc;
+    @media (max-width: 480px) {
+      .toggle-option { flex: 1 0 100%; }
     }
-  }
-
-.time-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #222;
-}
-
-.time-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.toggle-option {
-  flex: 1 0 calc(33.333% - 10px);
-  min-width: 90px;
-  padding: 8px 0;
-  text-align: center;
-  border: 1.5px solid #1a73e8;
-  border-radius: 8px;
-  background: #fff;
-  color: #1a73e8;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-  transition: 0.2s ease;
-}
-
-.toggle-option input[type="checkbox"] {
-  display: none;
-}
-
-.toggle-option:has(input:checked) {
-  background-color: #e0f0ff;
-  border-color: #1a73e8;
-  color: #1a73e8;
-  font-weight: bold;
-}
-
-/* 빈 칸을 위한 클래스 */
-.toggle-option.empty {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-@media (max-width: 480px) {
-  .toggle-option {
-    flex: 1 0 100%;
-  }
-}
-
   </style>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5W3SXG0M8J"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-5W3SXG0M8J');
-  </script>
 </head>
 <body>
   <div class="card">
     <h1>📨 뉴스레터 구독 서비스</h1>
-    <p>AI가 요약한 테마별 최신 기사를 보내드려요.<br><strong>지금 구독</strong>해보세요. 📌</p>
+    <p>AI가 요약한 테마별 참조 기사를 보내드릴거에요.<br><strong>지금 구독</strong>해보세요. 📌</p>
     <div style="margin-top: 20px; font-size: 13px; color: #888;">
       <strong style="color: #aaa;">발송 시간 🚀</strong><br>
       오전 7시 30분 / 오전 11시 30분 / 오후 3시 30분<br>
       오후 5시 50분 / 오후 9시 30분
     </div>
-
     <div class="tabs">
       <div class="tab active" onclick="switchTab('subscribe')">구독 신청</div>
       <div class="tab" onclick="switchTab('unsubscribe')">구독 해제</div>
     </div>
-
     <div id="subscribe" class="form-section active">
       <form onsubmit="submitForm(event, '/subscribe')">
         <input type="text" placeholder="닉네임을 입력하세요" name="name" required /><br />
         <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
         <p class="time-title">✅ 수신 시간대를 선택하세요</p>
         <div class="time-options">
-          <label class="toggle-option">
-            <input type="checkbox" name="time_slots" value="07:30" checked>
-            오전 7:30
-          </label>
-          <label class="toggle-option">
-            <input type="checkbox" name="time_slots" value="11:30" checked>
-            오전 11:30
-          </label>
-          <label class="toggle-option">
-            <input type="checkbox" name="time_slots" value="15:30" checked>
-            오후 3:30
-          </label>
-          <label class="toggle-option">
-            <input type="checkbox" name="time_slots" value="17:50" checked>
-            오후 5:50
-          </label>
-          <label class="toggle-option">
-            <input type="checkbox" name="time_slots" value="21:30" checked>
-            오후 9:30
-          </label>
+          <label class="toggle-option"><input type="checkbox" name="time_slots" value="07:30" checked>오전 7:30</label>
+          <label class="toggle-option"><input type="checkbox" name="time_slots" value="11:30" checked>오전 11:30</label>
+          <label class="toggle-option"><input type="checkbox" name="time_slots" value="15:30" checked>오후 3:30</label>
+          <label class="toggle-option"><input type="checkbox" name="time_slots" value="17:50" checked>오후 5:50</label>
+          <label class="toggle-option"><input type="checkbox" name="time_slots" value="21:30" checked>오후 9:30</label>
           <label class="toggle-option empty"></label>
         </div>
         </br>
         <button type="submit">구독 신청하기</button>
       </form>
     </div>
-
     <div id="unsubscribe" class="form-section">
       <form onsubmit="submitForm(event, '/unsubscribe')">
         <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
         <button type="submit" style="background:#d93025">구독 해제하기</button>
       </form>
     </div>
-
     <p id="result"></p>
   </div>
-
   <script>
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -306,47 +209,39 @@
       document.getElementById(tab).classList.add('active');
       event.target.classList.add('active');
     }
-
     function submitForm(event, endpoint) {
       event.preventDefault();
       const form = event.target;
       const data = Object.fromEntries(new FormData(form));
-
-      // ✅ 체크박스 데이터 수동으로 추출
-      // ✅ 체크박스 시간대 수동 수집
-      const selected = Array.from(form.querySelectorAll('input[name="time_slots"]:checked'))
-                            .map(cb => cb.value);
+      const selected = Array.from(form.querySelectorAll('input[name="time_slots"]:checked')).map(cb => cb.value);
       data.time_slots = selected;
-
       fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       })
-        .then(res => res.json())
-        .then(res => {
-          const result = document.getElementById('result');
-          result.innerText = res.message || res.error || "응답 없음";
-          result.style.opacity = 1;
-          form.reset();
-
-          setTimeout(() => {
-            result.style.opacity = 0;
-            result.innerText = "";
-          }, 1500);
-        })
-        .catch(err => {
-          const result = document.getElementById('result');
-          result.innerText = "오류가 발생했어요.";
-          result.style.opacity = 1;
-          setTimeout(() => {
-            result.style.opacity = 0;
-            result.innerText = "";
-          }, 3000);
-          console.error(err);
-        });
+      .then(res => res.json())
+      .then(res => {
+        const result = document.getElementById('result');
+        result.innerText = res.message || res.error || "응답 없음";
+        result.style.opacity = 1;
+        form.reset();
+        setTimeout(() => {
+          result.style.opacity = 0;
+          result.innerText = "";
+        }, 1500);
+      })
+      .catch(err => {
+        const result = document.getElementById('result');
+        result.innerText = "오류가 발생했어요.";
+        result.style.opacity = 1;
+        setTimeout(() => {
+          result.style.opacity = 0;
+          result.innerText = "";
+        }, 3000);
+        console.error(err);
+      });
     }
-
     window.onload = () => {
       const tabParam = new URLSearchParams(window.location.search).get("tab");
       if (tabParam === "subscribe") {

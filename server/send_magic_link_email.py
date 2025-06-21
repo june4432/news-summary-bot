@@ -12,9 +12,8 @@ SMTP_PASS = os.getenv("SENDER_APP_PASSWORD")
 print(SMTP_USER)
 print(SMTP_PASS)
 
-def send_magic_link_email(email, token):
+def send_magic_link_email(email, magic_link_url):
     encoded_email = quote(email)
-    magic_link = f"https://leeyoungjun.duckdns.org/preferences?email={encoded_email}&token={token}"
 
     html = f"""\
     <h2 style="color:#1a73e8;">🔐 뉴스레터 수신 설정 링크</h2>
@@ -23,7 +22,7 @@ def send_magic_link_email(email, token):
         아래 버튼을 클릭하시면 뉴스레터 수신 시간대를 설정하실 수 있습니다. ⏰
     </p>
     <p>
-      <a href="{magic_link}" style="display:inline-block; margin:20px 0; background:#34a853; color:white; padding:12px 20px; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px;">
+      <a href="{magic_link_url}" style="display:inline-block; margin:20px 0; background:#34a853; color:white; padding:12px 20px; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px;">
         👉 수신 시간 설정하기
       </a>
     </p>

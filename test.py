@@ -1,11 +1,20 @@
 from mailer import send_email, build_email_body, get_email_subject
 from token_manager import generate_token
+import json
 
 
 token = generate_token("june4432%2Bnewsbot@icloud.com")
 
 print(token)
+RSS_SOURCES_FILE = "rss_sources.json"
 
+def load_rss_sources():
+    with open(RSS_SOURCES_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+rss_sources = load_rss_sources()
+
+print(rss_sources)
 
 # 가짜 뉴스 데이터 샘플
 # news_data = [

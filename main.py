@@ -13,24 +13,32 @@ from config import (
 )
 import datetime
 from log import logger
+import json
+import os
 
 logger.info("뉴스레터 발송 작업 시작!!")
 
-rss_sources = [
-    ("매일경제 - 헤드라인", "https://www.mk.co.kr/rss/30000001/"),
-    ("매일경제 - 경제", "https://www.mk.co.kr/rss/30100041/"),
-    ("매일경제 - 국제", "https://www.mk.co.kr/rss/30300018/"),
-    ("한국경제 - 경제", "https://www.hankyung.com/feed/economy"),
-    ("한국경제 - 국제", "https://www.hankyung.com/feed/international"),
-    ("한국경제 - 사회", "https://www.hankyung.com/feed/society"),
-]
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RSS_SOURCES_FILE = os.path.join(BASE_DIR, "rss_sources.json")
+
+def load_rss_sources():
+    with open(RSS_SOURCES_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+rss_sources = load_rss_sources()
 
 news_data = []
 existing_urls = get_existing_urls_from_notion(notion_token, notion_database_id)
 
 logger.info("노션 가져오기 완료")
 
-for category, rss_url in rss_sources:
+for item in rss_sources:
+    source = item["source"]  # 예: "매일경제 - 경제"
+    category = item["category"]
+    rss_url = item["url"]
+
+    print(f"{source} - {category} - {rss_url}")
+    
     urls = get_latest_news_urls(rss_url)
 
     for url in urls:
@@ -68,12 +76,14 @@ for category, rss_url in rss_sources:
             logger.error(f"❌ 요약 중 예외 발생: {article['url']} / {str(e)}", exc_info=True)
             continue
 
+        article['category'] = category
+        article['source'] = source
+        
         article['summary'] = summary
         article['tags'] = tags
         article['emoji'] = emoji
-        source_name, section_name = category.split(" - ")
-        article['category'] = section_name  # ✅ "경제", "국제", "사회"만 저장
-        article['source'] = source_name     # ✅ "매일경제", "한국경제"
+        
+        
 
         news_data.append(article)
 

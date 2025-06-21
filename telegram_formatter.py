@@ -26,48 +26,34 @@ def escape_title_markdown_v2(text: str) -> str:
     return re.sub(r'([\\_*~`])', r'\\\1', text)
 
 # ✅ 텔레그램 메시지 생성 함수
-def build_telegram_message(news_data, max_articles=10):
+def build_telegram_message(news_data, max_articles=10, header=None):
     lines = []
 
-    categorized = defaultdict(list)
+    if header:
+        lines.append(f"📢 *[{escape_markdown_v2(header)} 뉴스 요약]*\n")
+
+    count = 1
     for article in news_data:
-        display_key = f"{article['source']} - {article['category']}"
-        categorized[display_key].append(article)
+        if count > max_articles:
+            break
 
-    for display_key, articles in categorized.items():
-        lines.append(f"📢 *[{escape_markdown_v2(display_key)} 뉴스 요약]*\n")
+        title = escape_title_markdown_v2(article.get("title", ""))
+        emoji = article.get("emoji", "")
+        summary = escape_markdown_v2(article.get("summary", ""))
+        url = article.get("url", "")
+        tags = article.get("tags", [])
 
-        count = 1
-        for article in articles:
-            if count > max_articles:
-                break
+        lines.append(f"*{escape_markdown_v2(str(count))}\\. {escape_markdown_v2(title)} {emoji}*")
+        lines.append(f"{summary}")
+        if tags:
+            tag_line = " ".join(f"\\#{escape_markdown_v2(tag.replace(' ', ''))}" for tag in tags)
+            lines.append(tag_line)
+        if url:
+            safe_full_url = escape_markdown_v2(f"{newsletter_url}/news-click?url={url}")
+            lines.append(f"👉 [본문 보기]({safe_full_url})")
 
-            title = escape_title_markdown_v2(article.get("title", ""))
-            emoji = article.get("emoji", "")
-            summary = escape_markdown_v2(article.get("summary", ""))
-            url = article.get("url", "")
-            tags = article.get("tags", [])
-
-            # 제목 + 이모지
-            lines.append(f"*{escape_markdown_v2(str(count))}\\. {escape_markdown_v2(title)} {emoji}*")
-
-            # 요약 본문
-            lines.append(f"{summary}")
-
-            # 태그 줄
-            if tags:
-                tag_line = " ".join(f"\\#{escape_markdown_v2(tag.replace(' ', ''))}" for tag in tags)
-                lines.append(tag_line)
-
-            # 링크
-            if url:
-                #lines.append(f"👉 [본문 보기]({newsletter_url}/news-click?url={article['url']})")  # ✅ escape하지 않음
-                safe_full_url = escape_markdown_v2(f"{newsletter_url}/news-click?url={url}")
-                lines.append(f"👉 [본문 보기]({safe_full_url})")
-
-
-            lines.append("")  # 줄바꿈
-            count += 1
+        lines.append("")
+        count += 1
 
     # 푸터 링크
     footer_link = f"[지난 뉴스 전체 보기]({notion_url})"

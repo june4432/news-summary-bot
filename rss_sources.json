@@ -1,0 +1,32 @@
+[
+  {
+    "source": "매일경제",
+    "category": "헤드라인",
+    "url": "https://www.mk.co.kr/rss/30000001/"
+  },
+  {
+    "source": "매일경제",
+    "category": "경제",
+    "url": "https://www.mk.co.kr/rss/30100041/"
+  },
+  {
+    "source": "매일경제",
+    "category": "국제",
+    "url": "https://www.mk.co.kr/rss/30300018/"
+  },
+  {
+    "source": "한국경제",
+    "category": "경제",
+    "url": "https://www.hankyung.com/feed/economy"
+  },
+  {
+    "source": "한국경제",
+    "category": "국제",
+    "url": "https://www.hankyung.com/feed/international"
+  },
+  {
+    "source": "한국경제",
+    "category": "사회",
+    "url": "https://www.hankyung.com/feed/society"
+  }
+]

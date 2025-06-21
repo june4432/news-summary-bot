@@ -71,18 +71,22 @@ def send_bulk_email(news_data):
 
     logger.info("✅ 전체 이메일 전송 완료")
 
-    # ✅ 텔레그램 메시지: 카테고리별로 3번 전송
     # 📲 텔레그램 메시지 전송 시작
-    category_map = defaultdict(list)
+    # 🔁 source - category 단위로 그룹핑
+    source_category_map = defaultdict(list)
     for article in news_data:
-        category_map[article["category"]].append(article)
+        source = article.get("source", "Unknown")
+        category = article.get("category", "Unknown")
+        key = f"{source} - {category}"  # 예: "매일경제 - 국제"
+        source_category_map[key].append(article)
 
     telegram_targets = [r for r in load_telegram_recipients() if r.get("subscribed", True)]
-
+    
     logger.info(f"📲 텔레그램 구독자 {len(telegram_targets)}명에게 전송 시작")
 
-    for category, articles in category_map.items():
-        text = build_telegram_message(articles, max_articles=10)
+    # 🔁 그룹별 메시지 생성 및 전송
+    for source_category, articles in source_category_map.items():
+        text = build_telegram_message(articles, max_articles=10, header=source_category)
         for person in telegram_targets:
             chat_id = person["chat_id"]
             send_telegram_message(
@@ -90,7 +94,7 @@ def send_bulk_email(news_data):
                 bot_token=telegram_bot_token,
                 chat_id=chat_id
             )
-            logger.info(f"✅ 텔레그램 전송 완료: {category} → {chat_id}")
-            time.sleep(1)  # API 요청 제한 방지
+            logger.info(f"✅ 텔레그램 전송 완료: {source_category} → {chat_id}")
+            time.sleep(1)
 
     logger.info("✅ 전체 텔레그램 전송 완료")

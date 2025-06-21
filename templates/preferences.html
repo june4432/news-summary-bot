@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>뉴스레터 수신 시간대 설정</title>
+  <link rel="icon" type="image/svg+xml" href="/static/emoji-favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <style>
+    html {
+      font-size: 16px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 2rem 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #222;
+      text-align: center;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .form-group input[type="text"] {
+      width: 100%;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1.5px solid #1a73e8;
+      font-size: 17px; /* ✅ 아이폰 확대 방지 */
+    }
+
+    .form-group input[type="text"]:focus {
+      border-color: #1a73e8;
+      outline: none;
+    }
+
+    .time-options {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .time-header {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: -0.5rem;
+      color: #333;
+    }
+
+    .time-card {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      background-color: #fff;
+      font-size: 1rem;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .time-card input[type="checkbox"] {
+      display: none;
+    }
+
+    .time-card:has(input[type="checkbox"]:checked) {
+      background-color: #e8f0fe;
+      border-color: #1a73e8;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+
+    input[type="hidden"] {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1669c1;
+    }
+
+    #status {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: green;
+      text-align: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #121212;
+        color: #e0e0e0;
+      }
+
+      .card {
+        background: #1e1e1e;
+        box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+      }
+
+      .form-group label,
+      .time-header {
+        color: #ddd;
+      }
+
+      .form-group input[type="text"] {
+        background: #2c2c2c;
+        color: #fff;
+        border-color: #555;
+      }
+
+      .time-card {
+        background-color: #2c2c2c;
+        border-color: #555;
+        color: #ccc;
+      }
+
+      .time-card:has(input[type="checkbox"]:checked) {
+        background-color: #37474f;
+        border-color: #90caf9;
+        color: #90caf9;
+      }
+
+      button {
+        background: #3f51b5;
+      }
+
+      button:hover {
+        background: #3949ab;
+      }
+
+      #status {
+        color: #90ee90;
+      }
+    }
+
+
+    .toggle-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .toggle-item {
+    position: relative;
+    display: inline-block;
+    width: calc(33.33% - 10px);
+  }
+
+  .toggle-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .toggle-item span {
+    display: block;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .toggle-item input[type="checkbox"]:checked + span {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+
+  .category-header {
+    font-weight: bold;
+    margin: 10px 0 8px;
+    font-size: 1em;
+    color: #333;
+  }
+
+  .section-label {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 0.5em;
+    display: block;
+  }
+
+  .category-block {
+    margin-bottom: 1.5em;
+  }
+
+
+  </styl
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 id="user-greeting">⏰ 뉴스레터 수신 시간대 선택</h2>
+    <p>원하는 시간을 선택하면<br>그 시간에만 뉴스레터를 받아볼 수 있어요.</p>
+<div class="section">
+  <label class="section-label">🫆 닉네임</label>
+    <div class="form-group">
+      <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" />
+    </div>
+</div>
+    <!-- 📰 뉴스 카테고리 선택 -->
+<div class="section">
+  <label class="section-label">🗞️ 관심 뉴스 카테고리</label>
+
+  {% for source, categories in grouped_sources.items() %}
+    <div class="category-block">
+      <div class="category-header">{{ source }}</div>
+      <div class="toggle-grid">
+        {% for category in categories %}
+          <label class="toggle-item">
+            <input type="checkbox" name="categories" value="{{ source }}::{{ category }}">
+            <span>{{ category }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+    <div class="section">
+    <label class="section-label">⏰ 수신 시간대</label>
+    <form id="timeForm">
+      <div class="time-options">
+        <label class="time-card">
+          <input type="checkbox" name="time" value="07:30" />
+          <span>오전 7:30 (아침 뉴스)</span>
+        </label>
+        <label class="time-card">
+          <input type="checkbox" name="time" value="11:30" />
+          <span>오전 11:30 (오전 브리핑)</span>
+        </label>
+        <label class="time-card">
+          <input type="checkbox" name="time" value="15:30" />
+          <span>오후 3:30 (시장 동향)</span>
+        </label>
+        <label class="time-card">
+          <input type="checkbox" name="time" value="17:50" />
+          <span>오후 5:50 (퇴근길 요약)</span>
+        </label>
+        <label class="time-card">
+          <input type="checkbox" name="time" value="21:30" />
+          <span>오후 9:30 (하루 정리)</span>
+        </label>
+      </div>
+    </div>
+
+      <input type="hidden" id="emailField" />
+      <button type="submit">저장하기</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const emailParam = urlParams.get('email');
+    const emailField = document.getElementById("emailField");
+
+    async function loadPreferences() {
+      if (token) {
+        const res = await fetch(`/get-preferences-by-token?token=${encodeURIComponent(token)}`);
+        const result = await res.json();
+        if (result.error) {
+          document.getElementById("status").innerText = "❌ 인증에 실패했습니다.";
+          return;
+        }
+
+        //alert("✅ 불러온 사용자 정보: " + JSON.stringify(result));
+
+        document.getElementById("nickname").value = result.name || "";
+        document.getElementById("user-greeting").innerText = `반가워요 ${result.name || ""}님!\n뉴스레터를 받을 시간을 선택하세요. 📌`;
+        emailField.value = result.email;
+        const saved = result.time_slots || [];
+        document.querySelectorAll('input[name="time"]').forEach(cb => cb.checked = saved.includes(cb.value));
+        
+        const savedCategories = result.categories || [];
+
+        document.querySelectorAll('input[name="categories"]').forEach(cb => {
+          cb.checked = savedCategories.includes(cb.value);
+        });
+
+      } else if (emailParam) {
+        const decodedEmail = decodeURIComponent(emailParam);
+        emailField.value = decodedEmail;
+        const res = await fetch(`/get-preferences?email=${encodeURIComponent(decodedEmail)}`);
+        const result = await res.json();
+        document.getElementById("nickname").value = result.name || "";
+        document.getElementById("user-greeting").innerText = `반가워요 ${result.name || ""}님!\n뉴스레터를 받을 시간을 선택하세요. 📌`;
+        const saved = result.time_slots || [];
+        document.querySelectorAll('input[name="time"]').forEach(cb => cb.checked = saved.includes(cb.value));
+        
+        const savedCategories = result.categories || [];
+
+        document.querySelectorAll('input[name="categories"]').forEach(cb => {
+          cb.checked = savedCategories.includes(cb.value);
+        });
+      }
+    }
+
+    document.getElementById("timeForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const selected = Array.from(document.querySelectorAll('input[name="time"]:checked')).map(cb => cb.value);
+       const selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
+      const nickname = document.getElementById("nickname").value;
+      
+      const res = await fetch("/update-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailField.value,
+          name: nickname,
+          time_slots: selected,
+          categories: selectedCategories     // ✅ 추가됨
+        })
+      });
+      const result = await res.json();
+
+      const statusDiv = document.getElementById("status");
+      statusDiv.innerText = result.message || "저장 실패!";
+
+      // ⏳ 2초 후 메시지 자동 지움
+      setTimeout(() => {
+        statusDiv.innerText = "";
+      }, 1000);
+    });
+
+    loadPreferences();
+  </script>
+</body>
+</html>
