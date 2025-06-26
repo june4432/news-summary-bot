@@ -124,7 +124,7 @@
       padding: 1rem;
       font-size: 1rem;
       font-weight: bold;
-      background: #1a73e8;
+      background: #34a853;
       color: white;
       border: none;
       border-radius: 8px;
@@ -133,7 +133,7 @@
     }
 
     button:hover {
-      background: #1669c1;
+      background: #34a853;
     }
 
     #status {
@@ -143,52 +143,7 @@
       text-align: center;
     }
 
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: #121212;
-        color: #e0e0e0;
-      }
-
-      .card {
-        background: #1e1e1e;
-        box-shadow: 0 4px 12px rgba(255,255,255,0.05);
-      }
-
-      .form-group label,
-      .time-header {
-        color: #ddd;
-      }
-
-      .form-group input[type="text"] {
-        background: #2c2c2c;
-        color: #fff;
-        border-color: #555;
-      }
-
-      .time-card {
-        background-color: #2c2c2c;
-        border-color: #555;
-        color: #ccc;
-      }
-
-      .time-card:has(input[type="checkbox"]:checked) {
-        background-color: #37474f;
-        border-color: #90caf9;
-        color: #90caf9;
-      }
-
-      button {
-        background: #3f51b5;
-      }
-
-      button:hover {
-        background: #3949ab;
-      }
-
-      #status {
-        color: #90ee90;
-      }
-    }
+ 
 
 
     .toggle-grid {
@@ -242,6 +197,74 @@
   .category-block {
     margin-bottom: 1.5em;
   }
+ 
+ @media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: #e0e0e0;
+  }
+
+  .card {
+    background: #1e1e1e;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+  }
+
+  .form-group label,
+  .time-header,
+  .category-header,
+  .section-label,
+  h2,
+  p {
+    color: #f0f0f0;
+  }
+
+  .form-group input[type="text"] {
+    background: #2c2c2c;
+    color: #fff;
+    border-color: #777;
+  }
+
+  .form-group input[type="text"]::placeholder {
+    color: #aaa;
+  }
+
+  .time-card {
+    background-color: #2c2c2c;
+    border-color: #777;
+    color: #ddd;
+  }
+
+  .time-card:has(input[type="checkbox"]:checked) {
+    background-color: #007bff;
+    
+    color: #fff;
+  }
+
+  .toggle-item span {
+    background-color: #2c2c2c;
+    color: #ccc;
+    border-color: #777;
+  }
+
+  .toggle-item input[type="checkbox"]:checked + span {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+  }
+
+  button {
+    background: #34a853;
+    color: #fff;
+  }
+
+  button:hover {
+    background: #3949ab;
+  }
+
+  #status {
+    color: #90ee90;
+  }
+}
   </style>
 </head>
 <body>
