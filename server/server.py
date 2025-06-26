@@ -398,9 +398,11 @@ def telegram_webhook():
             save_recipients_telegram(recipients)
             send_message(chat_id,
                 "👋 안녕하세요! 경제 뉴스 요약 봇입니다.\n\n"
-                "📰 매일 아침 주요 뉴스가 요약되어 도착합니다!\n"
+                "📰 매일 아침 주요 뉴스가 요약되어 도착합니다!\n\n"
+                "📬 이메일로 구독하면 시간대와 카테고리를 자유롭게 설정할 수 있어요!\n"
+                "👉 https://leeyoungjun.duckdns.org/news-bot\n"
                 "/stop - 뉴스 수신 중지\n"
-                "/status - 구독 상태 확인\n"
+                "/status - 구독 상태 확인"
             )
 
     elif text == "/stop":
@@ -412,10 +414,22 @@ def telegram_webhook():
     
     elif text == "/status":
         user = next((r for r in recipients if r["chat_id"] == chat_id), None)
-        if user and user.get("subscribed", True):
-            send_message(chat_id, "✅ 현재 뉴스 구독 중입니다.")
+        is_subscribed = user.get("subscribed", True) if user else False
+
+        if is_subscribed:
+            message = (
+                "✅ 현재 뉴스 구독 중입니다.\n\n"
+                "📬 이메일로도 뉴스 받아보실 수 있어요!\n"
+                "👉 https://leeyoungjun.duckdns.org/news-bot"
+            )
         else:
-            send_message(chat_id, "❌ 구독되어 있지 않습니다. /start 로 다시 시작하세요.")
+            message = (
+                "❌ 구독되어 있지 않습니다. /start 로 다시 시작하세요.\n\n"
+                "📬 이메일로도 뉴스 받아보실 수 있어요!\n"
+                "👉 https://leeyoungjun.duckdns.org/news-bot"
+            )
+
+        send_message(chat_id, message)
 
     elif text == "/help":
         help_message = (
@@ -423,7 +437,8 @@ def telegram_webhook():
             "/start - 뉴스 구독 시작\n"
             "/stop - 뉴스 구독 중지\n"
             "/status - 내 구독 상태 확인\n"
-            "/help - 이 메시지 보기"
+            "/help - 이 메시지 보기\n"
+            "이메일 구독 👉 https://leeyoungjun.duckdns.org/news-bot"
         )
         send_message(chat_id, help_message)
 

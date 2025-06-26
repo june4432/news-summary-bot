@@ -62,9 +62,13 @@ def save_to_notion(article, notion_token, notion_database_id):
         },
         "신문사": {
             "select": {
-                "name": article["source"]
+                "name": article.get("source", "미지정")
             }
+        },
+        "광고성 여부": {  # ✅ 여기 추가
+            "checkbox": article.get("is_ad", False)
         }
+
     }
 
     if 'tags' in article and article['tags']:
