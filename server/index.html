@@ -113,15 +113,6 @@
       button { font-size: 15px; padding: 12px; }
       input { font-size: 16px; padding: 12px; }
     }
-    @media (prefers-color-scheme: dark) {
-      body { background: #121212; color: #e0e0e0; }
-      .card { background: #1e1e1e; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
-      input { background: #2b2b2b; color: #fff; border: 1px solid #555; }
-      button { background: #3f51b5; }
-      .tab.active { border-color: #90caf9; color: #90caf9; }
-      .tab { color: #aaa; }
-      #result { color: #ccc; }
-    }
     .time-title {
       font-weight: bold;
       margin-bottom: 10px;
@@ -162,6 +153,53 @@
     @media (max-width: 480px) {
       .toggle-option { flex: 1 0 100%; }
     }
+
+    @media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: #e0e0e0;
+  }
+  .card {
+    background: #1e1e1e;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  }
+  input {
+    background: #2c2c2c;
+    color: #f0f0f0;
+    border: 1px solid #555;
+  }
+  input::placeholder {
+    color: #999;
+  }
+  button {
+    background: #3f51b5;
+    color: #fff;
+  }
+  .tab {
+    color: #aaa;
+  }
+  .tab.active {
+    border-color: #90caf9;
+    color: #90caf9;
+  }
+  .toggle-option {
+    background: #2c2c2c;
+    color: #90caf9;
+    border-color: #90caf9;
+  }
+  .toggle-option:has(input:checked) {
+    background-color: #304ffe;
+    color: #fff;
+    border-color: #82b1ff;
+  }
+  #result {
+    color: #ccc;
+  }
+  .time-title {
+    color: #ffffff;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -181,6 +219,8 @@
       <form onsubmit="submitForm(event, '/subscribe')">
         <input type="text" placeholder="닉네임을 입력하세요" name="name" required /><br />
         <input type="email" placeholder="이메일 주소를 입력하세요" name="email" required /><br />
+        <p class="time-title">🗞️ 관심 있는 카테고리를 선택하세요</p>
+        <div id="category-container"></div>
         <p class="time-title">✅ 수신 시간대를 선택하세요</p>
         <div class="time-options">
           <label class="toggle-option"><input type="checkbox" name="time_slots" value="07:30" checked>오전 7:30</label>
@@ -203,6 +243,27 @@
     <p id="result"></p>
   </div>
   <script>
+
+    fetch("/get-categories")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("category-container");
+      Object.entries(data).forEach(([source, categories]) => {
+        const group = document.createElement("div");
+        group.innerHTML = `<strong>${source}</strong><br>`;
+        categories.forEach(category => {
+          const id = `${source}-${category}`.replace(/\s+/g, "_");
+          group.innerHTML += `
+            <label class="toggle-option" style="margin: 4px; display: inline-block;">
+              <input type="checkbox" name="categories" value="${source}:::${category}" />
+              ${category}
+            </label>
+          `;
+        });
+        container.appendChild(group);
+      });
+    });
+
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
@@ -215,6 +276,17 @@
       const data = Object.fromEntries(new FormData(form));
       const selected = Array.from(form.querySelectorAll('input[name="time_slots"]:checked')).map(cb => cb.value);
       data.time_slots = selected;
+      const selectedCategories = Array.from(form.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
+      data.categories = selectedCategories;
+
+       // ✅ 현재 시간 추가
+      const nowIso = new Date().toISOString();
+      if (endpoint === "/subscribe") {
+        data.subscribe_at = nowIso;
+      } else if (endpoint === "/unsubscribe") {
+        data.unsubscribe_at = nowIso;
+      }
+
       fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

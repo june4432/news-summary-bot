@@ -59,23 +59,29 @@ def subscribe():
     data = request.get_json()
     name = data.get("name")
     email = data.get("email")
-    time_slots = data.get("time_slots", [])  # ✅ time_slots 받아오기
+    time_slots = data.get("time_slots", [])
+    subscribe_at = data.get("subscribe_at")
+    categories = data.get("categories", [])
 
     if not name or not email:
         return jsonify({"error": "이름과 이메일은 필수입니다. 🔥"}), 400
+
+    # ✅ ::: → ::로 변환
+    formatted_categories = [c.replace(":::", "::") for c in categories]
 
     recipients = load_recipients()
     if any(r["email"] == email for r in recipients):
         return jsonify({"message": "이미 구독 중입니다. 👍"}), 200
 
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     recipients.append({
         "name": name,
         "email": email,
-        "subscribed_at": timestamp,
-        "time_slots": time_slots  # ✅ 시간대도 함께 저장
+        "time_slots": time_slots,
+        "categories": formatted_categories,
+        "subscribe_at": subscribe_at or datetime.now().isoformat()
     })
-    print(f"✅ 개인 페이지 수정 → {recipients}")
+
+    print(f"✅ 구독 신청 완료 → {email}")
     save_recipients(recipients)
     return jsonify({"message": "구독이 완료되었습니다. 🎉"}), 200
 
@@ -84,19 +90,32 @@ def subscribe():
 def unsubscribe():
     data = request.get_json()
     email = data.get("email")
+    unsubscribe_at = data.get("unsubscribe_at")  # ✅ 추가됨
 
     if not email:
         return jsonify({"error": "이메일은 필수입니다."}), 400
 
     recipients = load_recipients()
-    updated = [r for r in recipients if r["email"] != email]
+    new_list = []
+    found = False
 
-    if len(updated) == len(recipients):
+    for r in recipients:
+        if r["email"] == email:
+            found = True
+            print(f"구독 해제 신청 → {email}")
+            # ✅ 구독 해제 시간만 남겨놓고 기록은 유지할 수도 있음
+            r["unsubscribe_at"] = unsubscribe_at or datetime.now().isoformat()
+            r["time_slots"] = []
+            r["categories"] = []
+            r["name"] = r.get("name", "")
+            new_list.append(r)
+        else:
+            new_list.append(r)
+
+    if not found:
         return jsonify({"message": "해당 이메일은 구독 목록에 없습니다."}), 404
 
-    print(f"구독 해제 신청 → {email}")
-
-    save_recipients(updated)
+    save_recipients(new_list)
     return jsonify({"message": "구독이 해제되었습니다."}), 200
 
 # 메일에서 구독해제 버튼을 눌렀을 때 액션
@@ -291,6 +310,26 @@ def send_magic_link():
     return jsonify({"message": "메일이 전송되었습니다."}), 200
 
 
+from collections import defaultdict
+from flask import jsonify
+
+@app.route("/get-categories", methods=["GET"])
+def get_categories():
+    try:
+        with open("../rss_sources.json", "r", encoding="utf-8") as f:
+            sources = json.load(f)
+
+        result = defaultdict(list)
+        for item in sources:
+            source = item.get("source")
+            category = item.get("category")
+            if source and category:
+                result[source].append(category)
+
+        return jsonify(result), 200
+    except Exception as e:
+        print("❌ get-categories 오류:", str(e))
+        return jsonify({"error": "서버 내부 오류"}), 500
 
 # 사용자 메일 수신 시간 설정 링크
 @app.route("/preferences")
@@ -349,6 +388,7 @@ def update_preferences():
     selected_times = data.get("time_slots", [])
     selected_categories = data.get("categories", [])
     name = data.get("name", "")  # 닉네임 추가
+    modified_at = data.get("modified_at")
 
     recipients = load_recipients()
     for person in recipients:
@@ -356,6 +396,7 @@ def update_preferences():
             person['time_slots'] = selected_times
             person['name'] = name  # 닉네임 업데이트
             person['categories'] = selected_categories
+            person['modified_at'] = modified_at
             break
     else:
         recipients.append({"email": email, "time_slots": selected_times, "name": name})

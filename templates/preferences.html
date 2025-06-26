@@ -359,7 +359,8 @@
       const selected = Array.from(document.querySelectorAll('input[name="time"]:checked')).map(cb => cb.value);
        const selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
       const nickname = document.getElementById("nickname").value;
-      
+      const modifiedAt = new Date().toISOString();
+
       const res = await fetch("/update-preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -367,7 +368,8 @@
           email: emailField.value,
           name: nickname,
           time_slots: selected,
-          categories: selectedCategories     // ✅ 추가됨
+          categories: selectedCategories,     // ✅ 추가됨
+          modified_at: modifiedAt
         })
       });
       const result = await res.json();

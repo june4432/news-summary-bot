@@ -15,9 +15,34 @@
     "url": "https://www.mk.co.kr/rss/30300018/"
   },
   {
+    "source": "매일경제",
+    "category": "기업·경영",
+    "url": "https://www.mk.co.kr/rss/50100032/"
+  },
+  {
+    "source": "매일경제",
+    "category": "스포츠",
+    "url": "https://www.mk.co.kr/rss/71000001/"
+  },
+  {
+    "source": "매일경제",
+    "category": "게임",
+    "url": "https://www.mk.co.kr/rss/50700001/"
+  },
+  {
     "source": "한국경제",
     "category": "경제",
     "url": "https://www.hankyung.com/feed/economy"
+  },
+  {
+    "source": "한국경제",
+    "category": "증권",
+    "url": "https://www.hankyung.com/feed/finance"
+  },
+  {
+    "source": "한국경제",
+    "category": "IT",
+    "url": "https://www.hankyung.com/feed/it"
   },
   {
     "source": "한국경제",
@@ -28,5 +53,10 @@
     "source": "한국경제",
     "category": "사회",
     "url": "https://www.hankyung.com/feed/society"
+  },
+  {
+    "source": "한국경제",
+    "category": "오피니언",
+    "url": "https://www.hankyung.com/feed/opinion"
   }
 ]

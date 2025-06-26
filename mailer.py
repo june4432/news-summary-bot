@@ -36,7 +36,9 @@ def build_email_body(news_data, notion_url, recipient_email, recipient_name):
 
     <ul style="font-size: 13px; color: #777; margin-bottom: 24px;">
       <li>🔧 본문 맨 아래의 <strong>[개인 구독 설정]</strong> 버튼을 누르면 <u>시간대</u>와 <u>관심 카테고리</u>를 직접 고를 수 있어요.</li>
+      <li>📰 신규 카테고리가 추가되었습니다. (매일경제 : 기업·경영, 스포츠, 게임 // 한국경제 : 증권, IT, 오피니언) </li>
       <li>📢 AI가 뉴스를 <strong>광고성 기사</strong>로 판단한 경우, 제목 앞에 <strong>[광고]</strong> 표시가 붙습니다.</li>
+      <li>📢 조만간 구독자분들과 소통할 수 있는 피드백 창구를 마련하도록 하겠습니다. 당분간 뉴스레터 관련 의견은 발송 메일로 보내주세요.</li>
     </ul>
 """
 
