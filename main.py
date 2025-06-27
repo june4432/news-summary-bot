@@ -82,11 +82,6 @@ for item in rss_sources:
         try:
             result = summarize_news_via_api(article['title'], article['content'], api_key)
 
-            # 결과가 튜플이 아니거나, 길이가 3이 아니면 스킵
-            # if not isinstance(result, tuple) or len(result) != 3:
-            #     logger.warning(f"⚠️ 요약 형식 이상으로 제외됨: {article['url']}, result={result}")
-            #     continue
-
             summary, tags, emoji, is_ad = result
 
             # 요약 실패인 경우도 건너뜀
