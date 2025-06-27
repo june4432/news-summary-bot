@@ -425,6 +425,11 @@ def telegram_webhook():
     recipients = load_recipients_telegram()
 
     if text == "/start":
+        from_user = message.get("from", {})
+        first_name = from_user.get("first_name", "")
+        last_name = from_user.get("last_name", "")
+        username = from_user.get("username", "")
+
         existing = next((r for r in recipients if r["chat_id"] == chat_id), None)
 
         if existing:
@@ -432,10 +437,19 @@ def telegram_webhook():
                 send_message(chat_id, "🙌 이미 뉴스 구독 중입니다. 매일 아침 뉴스가 발송됩니다!")
             else:
                 existing["subscribed"] = True
+                existing["first_name"] = first_name
+                existing["last_name"] = last_name
+                existing["username"] = username
                 save_recipients_telegram(recipients)
                 send_message(chat_id, "✅ 구독을 다시 시작했습니다. 다음 스케줄부터 뉴스가 발송됩니다!")
         else:
-            recipients.append({"chat_id": chat_id, "subscribed": True})
+            recipients.append({
+                "chat_id": chat_id,
+                "subscribed": True,
+                "first_name": first_name,
+                "last_name": last_name,
+                "username": username
+            })
             save_recipients_telegram(recipients)
             send_message(chat_id,
                 "👋 안녕하세요! 경제 뉴스 요약 봇입니다.\n\n"

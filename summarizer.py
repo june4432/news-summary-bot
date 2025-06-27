@@ -47,7 +47,7 @@ def summarize_news_via_api(title, content, api_key):
 반드시 JSON 형식으로 응답해야 해. **코드블럭 없이 순수 JSON**으로만 응답해.
 서술형 대신 **명사형** 또는 **동명사형** 표현 사용 (예: "~할 것", "~함")
 기사를 가장 잘 표현하는 이모지를 emoji에 담을 것.
-기사는 명백한 광고, 홍보성 기사일 경우 `"is_ad": true`로 표시해. 그 외엔 false로.
+기사의 내용이 직/간접적인 광고 기사일 경우 `"is_ad": true`로 표시해. 그 외엔 false로.
 
 제목: "{title}"
 본문:

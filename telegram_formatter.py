@@ -42,6 +42,11 @@ def build_telegram_message(news_data, max_articles=10, header=None):
         summary = escape_markdown_v2(article.get("summary", ""))
         url = article.get("url", "")
         tags = article.get("tags", [])
+        is_ad = article.get("is_ad", False)
+
+        # 제목 앞에 [광고성] 태그 붙이기
+        if is_ad:
+            title = "[광고성] " + title        
 
         lines.append(f"*{escape_markdown_v2(str(count))}\\. {escape_markdown_v2(title)} {emoji}*")
         lines.append(f"{summary}")

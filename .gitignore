@@ -6,3 +6,5 @@ news_data_with_summary.json
 sent_urls.txt
 log.txt
 recipients.json
+recipients_email.json
+recipients_telegram.json
