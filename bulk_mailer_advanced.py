@@ -11,10 +11,12 @@ from config import (
 from log import logger
 from telegram import send_telegram_message
 from telegram_formatter import build_telegram_message
+from collections import defaultdict
 
 RECIPIENTS_PATH = "/home/pi/project/news-summary-bot/recipients_email.json"
 TELEGRAM_RECIPIENTS_PATH = "/home/pi/project/news-summary-bot/recipients_telegram.json"
 TOLERANCE_MINUTES = 30
+TELEGRAM_MAX_MESSAGES = 5
 
 def load_recipients(filepath=RECIPIENTS_PATH):
     with open(filepath, "r", encoding="utf-8") as f:
@@ -97,9 +99,12 @@ def send_bulk_email(news_data):
     # 📲 텔레그램 전송 (전체 기사 대상으로 수행)
     send_bulk_telegram(news_data)
 
+
+
 def send_bulk_telegram(news_data):
     """
     전체 뉴스 기사 중 source-category 단위로 묶어 텔레그램 발송
+    각 수신자에게 최대 5개까지만 전송
     """
     source_category_map = defaultdict(list)
     for article in news_data:
@@ -111,15 +116,24 @@ def send_bulk_telegram(news_data):
     telegram_targets = [r for r in load_telegram_recipients() if r.get("subscribed", True)]
     logger.info(f"📲 텔레그램 구독자 {len(telegram_targets)}명에게 전송 시작")
 
+    # 각 사용자별 메시지 전송 횟수 저장
+    message_counts = defaultdict(int)
+
     for source_category, articles in source_category_map.items():
         text = build_telegram_message(articles, max_articles=10, header=source_category)
+
         for person in telegram_targets:
             chat_id = person["chat_id"]
+
+            if message_counts[chat_id] >= TELEGRAM_MAX_MESSAGES:
+                continue  # 이 사람은 이미 5개 보냄
+
             send_telegram_message(
                 text=text,
                 bot_token=telegram_bot_token,
                 chat_id=chat_id
             )
+            message_counts[chat_id] += 1
             logger.info(f"✅ 텔레그램 전송 완료: {source_category} → {chat_id}")
             time.sleep(1)
 

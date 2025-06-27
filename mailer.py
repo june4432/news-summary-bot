@@ -26,20 +26,21 @@ def send_email(sender, app_password, recipient, subject, body):
 
 def build_email_body(news_data, notion_url, recipient_email, recipient_name):
     html = f"""
-    <p style="font-size: 16px;">
+<div style="font-family: 'Segoe UI', 'Noto Sans KR', sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
+  <p style="font-size: 16px; margin: 0 0 12px 0;">
     안녕하세요 <strong>{recipient_name}</strong>님 👋
-    </p>
-    <p style="font-size: 14px; color: #555; margin-top: 0; margin-bottom: 24px;">
+  </p>
+
+  <p style="margin: 0 0 20px 0;">
     카테고리별로 최근 뉴스 10개를 <strong>AI가 요약했어요.</strong><br>
     세상의 흐름을 빠르게 읽어보세요. 🌍
-    </p>
+  </p>
 
-    <ul style="font-size: 13px; color: #777; margin-bottom: 24px;">
-      <li>🔧 본문 맨 아래의 <strong>[개인 구독 설정]</strong> 버튼을 누르면 <u>시간대</u>와 <u>관심 카테고리</u>를 직접 고를 수 있어요.</li>
-      <li>📰 신규 카테고리가 추가되었습니다. (매일경제 : 기업·경영, 스포츠, 게임 // 한국경제 : 증권, IT, 오피니언) </li>
-      <li>📢 AI가 뉴스를 <strong>광고성 기사</strong>로 판단한 경우, 제목 앞에 <strong>[광고]</strong> 표시가 붙습니다.</li>
-      <li>📢 조만간 구독자분들과 소통할 수 있는 피드백 창구를 마련하도록 하겠습니다. 당분간 뉴스레터 관련 의견은 발송 메일로 보내주세요.</li>
-    </ul>
+  <p>🔧 본문 맨 아래의 <strong>[개인 구독 설정]</strong> 버튼을 누르면 <u>시간대</u>와 <u>관심 카테고리</u>를 직접 고를 수 있어요.</p>
+  <p>📰 신규 카테고리가 추가되었습니다. (매일경제 : 기업·경영, 스포츠, 게임 // 한국경제 : 증권, IT, 오피니언)</p>
+  <p>📢 AI가 뉴스를 <strong>광고성 기사</strong>로 판단한 경우, 제목 앞에 <strong>[광고성]</strong> 표시가 붙습니다.</p>
+  <p>🎉 텔레그램으로도 뉴스레터를 받아볼 수 있습니다. 👉 <a href="https://t.me/news_epitome_bot" target="_blank" style="color: #1a73e8; text-decoration: none;">텔레그램 열기</a></p>
+</div>
 """
 
     categorized = defaultdict(list)
