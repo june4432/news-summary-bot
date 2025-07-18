@@ -1,0 +1,255 @@
+html {
+  font-size: 16px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+  background: #f4f6f8;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 2rem 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #222;
+  text-align: center;
+}
+
+p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1.5px solid #1a73e8;
+  font-size: 17px; /* ✅ 아이폰 확대 방지 */
+}
+
+.form-group input[type="text"]:focus {
+  border-color: #1a73e8;
+  outline: none;
+}
+
+.time-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.time-header {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: -0.5rem;
+  color: #333;
+}
+
+.time-card {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  background-color: #fff;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.time-card input[type="checkbox"] {
+  display: none;
+}
+
+.time-card:has(input[type="checkbox"]:checked) {
+  background-color: #e8f0fe;
+  border-color: #1a73e8;
+  font-weight: bold;
+  color: #1a73e8;
+}
+
+input[type="hidden"] {
+  display: none;
+}
+
+button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background: #34a853;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #34a853;
+}
+
+#status {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: green;
+  text-align: center;
+}
+
+.toggle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toggle-item {
+  position: relative;
+  display: inline-block;
+  width: calc(33.33% - 10px);
+}
+
+.toggle-item input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-item span {
+  display: block;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.toggle-item input[type="checkbox"]:checked + span {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.category-header {
+  font-weight: bold;
+  margin: 10px 0 8px;
+  font-size: 1em;
+  color: #333;
+}
+
+.section-label {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+  display: block;
+}
+
+.category-block {
+  margin-bottom: 1.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: #e0e0e0;
+  }
+
+  .card {
+    background: #1e1e1e;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+  }
+
+  .form-group label,
+  .time-header,
+  .category-header,
+  .section-label,
+  h2,
+  p {
+    color: #f0f0f0;
+  }
+
+  .form-group input[type="text"] {
+    background: #2c2c2c;
+    color: #fff;
+    border-color: #777;
+  }
+
+  .form-group input[type="text"]::placeholder {
+    color: #aaa;
+  }
+
+  .time-card {
+    background-color: #2c2c2c;
+    border-color: #777;
+    color: #ddd;
+  }
+
+  .time-card:has(input[type="checkbox"]:checked) {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .toggle-item span {
+    background-color: #2c2c2c;
+    color: #ccc;
+    border-color: #777;
+  }
+
+  .toggle-item input[type="checkbox"]:checked + span {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+  }
+
+  button {
+    background: #34a853;
+    color: #fff;
+  }
+
+  button:hover {
+    background: #3949ab;
+  }
+
+  #status {
+    color: #90ee90;
+  }
+}

@@ -1,0 +1,317 @@
+    html {
+      font-size: 16px; /* 첫 번째 파일 기준 */
+      -webkit-text-size-adjust: 100%;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box; /* 첫 번째 파일 기준 */
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      background: #f4f6f8;
+      display: flex; /* 중앙 정렬 및 상단 배치 */
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem; /* 첫 번째 파일 기준 */
+      touch-action: manipulation; /* 첫 번째 파일 기준 */
+      text-align: initial; /* 원래 body의 text-align: center 해제 */
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px; /* 첫 번째 파일 기준 */
+      background: white;
+      border-radius: 12px; /* 첫 번째 파일 기준 */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* 첫 번째 파일 기준 */
+      padding: 2rem 1.5rem; /* 첫 번째 파일 기준 */
+    }
+
+    h1 { /* 첫 번째 파일의 h2 스타일 참조 */
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #222;
+      text-align: center;
+    }
+
+    p {
+      font-size: 1rem; /* 첫 번째 파일 기준 */
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    /* 첫 번째 파일의 .form-group label 스타일 참조 */
+    .time-title,
+    .section-label { /* 카테고리 섹션 라벨 추가 */
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+      text-align: left; /* 라벨은 좌측 정렬 */
+    }
+
+    input[type="text"],
+    input[type="email"] { /* 첫 번째 파일의 input[type="text"] 스타일 참조 */
+      width: 100%;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1.5px solid #1a73e8;
+      font-size: 17px !important; /* ✅ 아이폰 확대 방지 유지 */
+      margin: 0 0 1.5rem 0; /* 기존 margin 10px 0 대체 */
+      box-sizing: border-box; /* 기존 input 스타일에 추가 */
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      border-color: #1a73e8;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem; /* 첫 번째 파일 기준 */
+      font-size: 1rem; /* 첫 번째 파일 기준 */
+      font-weight: bold;
+      background: #34a853; /* 첫 번째 파일 기준 */
+      color: white;
+      border: none;
+      border-radius: 8px; /* 첫 번째 파일 기준 */
+      cursor: pointer;
+      transition: background 0.2s; /* 첫 번째 파일 기준 */
+      box-sizing: border-box; /* 기존 button 스타일에 추가 */
+      margin-top: 1rem; /* 버튼 상단 간격 추가 */
+    }
+
+    button:hover {
+      background: #34a853; /* 첫 번째 파일 기준 */
+    }
+
+    button[style*="background:#d93025"] {
+      background: #d93025 !important;
+    }
+
+    #result {
+      margin-top: 1rem; /* 첫 번째 파일의 #status와 유사하게 */
+      font-size: 0.95rem; /* 첫 번째 파일의 #status와 유사하게 */
+      color: green; /* 첫 번째 파일의 #status와 유사하게 */
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* Tabs 스타일 (기존 스타일 유지하되 첫 번째 파일의 폰트 및 색상 톤 반영) */
+    .tabs {
+      margin-top: 1.5rem; /* 간격 조정 */
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 600; /* 첫 번째 파일 폰트 웨이트 참조 */
+      border-bottom: 3px solid transparent;
+      color: #555; /* 기본 탭 색상 조정 */
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab.active {
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+
+    .form-section {
+      display: none;
+      margin-top: 2rem; /* 간격 조정 */
+    }
+    .form-section.active {
+      display: block;
+    }
+
+    /* 시간대 선택 옵션 (첫 번째 파일의 .time-card 스타일 참조) */
+    .time-options {
+      display: flex;
+      flex-direction: column; /* 세로 정렬 */
+      gap: 14px; /* 첫 번째 파일 기준 */
+      margin-top: 0.5rem; /* 라벨과의 간격 조정 */
+      margin-bottom: 2rem; /* 폼 그룹 하단 간격과 유사하게 조정 */
+    }
+
+    .toggle-option { /* 첫 번째 파일의 .time-card 스타일 참조 */
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      background-color: #fff;
+      font-size: 1rem;
+      transition: all 0.2s ease-in-out;
+      width: 100%; /* 한 줄에 하나씩 */
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* 약간의 그림자 추가 */
+    }
+
+    .toggle-option input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-option:has(input:checked) { /* 첫 번째 파일의 .time-card:has(...) 스타일 참조 */
+      background-color: #e8f0fe;
+      border-color: #1a73e8;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+
+    /* 빈 공간 토글 옵션은 HTML에서 제거하는 것이 권장됨 */
+    .toggle-option.empty {
+      display: none;
+    }
+
+    /* --- 관심 카테고리 섹션 (첫 번째 파일과 동일하게 적용) --- */
+    .section { /* 기존 form-group과 유사하게 마진 조정 */
+      margin-bottom: 2rem;
+    }
+
+    .category-block { /* 첫 번째 파일의 .category-block 참조 */
+      margin-bottom: 1.5em; /* 1.5em (24px) */
+    }
+
+    .category-header { /* 첫 번째 파일의 .category-header 참조 */
+      font-weight: bold;
+      margin: 10px 0 8px; /* 상하 10px, 좌우 0, 아래 8px */
+      font-size: 1em; /* 16px */
+      color: #333;
+      text-align: left; /* 라벨은 좌측 정렬 */
+    }
+
+    .toggle-grid { /* 첫 번째 파일의 .toggle-grid 참조 */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px; /* 10px */
+    }
+
+    .toggle-item { /* 첫 번째 파일의 .toggle-item 참조 */
+      position: relative;
+      display: inline-block;
+      width: calc(33.33% - 6.67px); /* (10px * 2) / 3 = 6.67px, 33.33% - (gap / 3) * 2 - (gap) */
+      /* width: calc(33.33% - 10px); 원래는 이거였는데, gap을 감안해서 조정 */
+      min-width: 90px; /* 너무 작아지지 않게 */
+      text-align: center; /* 내부 텍스트 중앙 정렬 */
+    }
+
+    .toggle-item input[type="checkbox"] { /* 첫 번째 파일과 동일 */
+      display: none;
+    }
+
+    .toggle-item span { /* 첫 번째 파일의 .toggle-item span 참조 */
+      display: block;
+      padding: 10px;
+      background-color: #f2f2f2;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      font-size: 1rem; /* 첫 번째 파일과 일관되게 */
+    }
+
+    .toggle-item input[type="checkbox"]:checked + span { /* 첫 번째 파일과 동일 */
+      background-color: #1a73e8; /* 첫 번째 파일의 #007bff 대신 #1a73e8 사용 */
+      color: white;
+      border-color: #1a73e8;
+    }
+    /* --- 관심 카테고리 섹션 끝 --- */
+
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1.5rem 0.8rem; /* 모바일 패딩 조정 */
+      }
+      h1 { font-size: 1.3rem; } /* 모바일 폰트 사이즈 조정 */
+      .card { padding: 1.5rem 1rem; }
+      .tab { font-size: 0.9rem; padding: 8px 14px; }
+      button { font-size: 0.95rem; padding: 1rem; }
+      input { font-size: 16px !important; padding: 14px; } /* 아이폰 확대 방지 */
+      .toggle-option { padding: 14px; } /* 모바일 시간대 토글 옵션 패딩 조정 */
+
+      /* 모바일 환경에서 toggle-item 너비 조정 */
+      .toggle-item {
+        width: calc(50% - 5px); /* 2개씩 표시 */
+      }
+    }
+
+    /* 다크 모드 스타일 (첫 번째 파일 기준으로 상세 조정) */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #121212;
+        color: #e0e0e0;
+      }
+      .card {
+        background: #1e1e1e;
+        box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+      }
+      .time-title,
+      .section-label,
+      h1,
+      p,
+      .category-header { /* category-header도 추가 */
+        color: #f0f0f0; /* 텍스트 색상 통일 */
+      }
+      input[type="text"],
+      input[type="email"] {
+        background: #2c2c2c;
+        color: #fff;
+        border-color: #777;
+      }
+      input::placeholder {
+        color: #aaa;
+      }
+      button {
+        background: #34a853; /* 첫 번째 파일의 다크 모드 버튼 색상 유지 */
+        color: #fff;
+      }
+      button:hover {
+        background: #3949ab; /* 첫 번째 파일의 다크 모드 버튼 호버 색상 유지 */
+      }
+      .tab {
+        color: #aaa;
+      }
+      .tab.active {
+        border-color: #1a73e8; /* 첫 번째 파일의 활성화 색상 */
+        color: #1a73e8;
+      }
+
+      .toggle-option { /* 시간대 선택 옵션 다크 모드 */
+        background-color: #2c2c2c;
+        border-color: #777;
+        color: #ddd;
+      }
+      .toggle-option:has(input:checked) {
+        background-color: #007bff; /* 첫 번째 파일의 다크 모드 체크 색상 */
+        border-color: #007bff;
+        color: #fff;
+      }
+
+      /* 카테고리 토글 옵션 다크 모드 */
+      .toggle-item span {
+        background-color: #2c2c2c;
+        color: #ccc;
+        border-color: #777;
+      }
+
+      .toggle-item input[type="checkbox"]:checked + span {
+        background-color: #1a73e8; /* 첫 번째 파일의 다크 모드 체크 색상 */
+        color: #fff;
+        border-color: #1a73e8;
+      }
+      #result {
+        color: #90ee90; /* 첫 번째 파일의 #status와 유사하게 */
+      }
+    }

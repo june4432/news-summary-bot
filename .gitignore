@@ -1,0 +1,27 @@
+# 가상 환경 디렉토리
+venv/
+.env
+
+# Node.js 프로젝트 관련
+node_modules/
+npm-debug.log
+.DS_Store # macOS 관련 파일
+
+# 파이썬 관련
+__pycache__/
+*.pyc
+*.log
+.pytest_cache/
+
+# 빌드 및 컴파일된 파일
+/dist/
+/build/
+
+# 특정 파일 (절대 경로)
+my_secret_key.txt
+
+# 특정 파일 (모든 하위 디렉토리에서)
+*.tmp
+
+recipients_email.json
+recipients_telegram.json
