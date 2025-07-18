@@ -18,33 +18,38 @@
 프로젝트는 모듈화된 백엔드와 프론트엔드로 구성되어 있습니다.
 ```
 news-summary-bot/
-├── .github/                 # GitHub Actions (CI/CD 등) 설정
-├── backend/                 # Flask 백엔드 애플리케이션
-│   ├── batch/               # 배치 처리 스크립트 (뉴스 수집, 요약 등)
-│   │   ├── util/            # 유틸리티 모듈 (RSS 파싱 등)
-│   │   └── .env             # 배치 및 백엔드 환경 변수 (예: API 키, rss_batch_count)
-│   ├── venv/                # Python 가상 환경 (Git 추적 제외)
-│   ├── data/                # 데이터 파일 (예: rss_sources.json - RSS 피드 정보)
-│   ├── server.py            # Flask 메인 애플리케이션 파일
-│   ├── ecosystem.config.cjs # PM2 백엔드 프로세스 설정 파일
-│   ├── requirements.txt     # Python 의존성 목록
-│   └── tests/               # 백엔드 테스트 코드
-├── newsletter-frontend/     # React/Vite 프론트엔드 애플리케이션
-│   ├── public/              # 정적 파일 (index.html, favicon.ico 등)
-│   ├── src/                 # React 소스 코드
-│   │   ├── assets/          # 이미지, 폰트 등 정적 자산
-│   │   ├── components/      # 재사용 가능한 UI 컴포넌트
-│   │   ├── pages/           # 개별 웹 페이지 컴포넌트
-│   │   ├── styles/          # CSS 스타일 파일
-│   │   ├── App.jsx          # React 메인 애플리케이션 (JavaScript 버전)
-│   │   └── App.tsx          # React 메인 애플리케이션 (TypeScript 버전)
-│   ├── vite.config.js       # Vite 설정 파일
-│   ├── ecosystem.config.cjs # PM2 프론트엔드 프로세스 설정 파일
-│   ├── package.json         # Node.js 의존성 및 스크립트
-│   └── tsconfig.json        # TypeScript 설정
-├── .gitignore               # Git 추적에서 제외할 파일/디렉토리 목록
-├── LICENSE                  # 라이선스 정보
-└── README.md                # 프로젝트 설명 (현재 파일)
+├── .github/                             # GitHub Actions (CI/CD 등) 설정
+├── backend/                             # Flask 백엔드 애플리케이션
+│   ├── batch/                           # 배치 처리 스크립트 (뉴스 수집, 요약 등)
+│   │   ├── util/                        # 유틸리티 모듈 (RSS 파싱 등)
+│   │   └── .env                         # 배치 및 백엔드 환경 변수 (예: API 키, rss_batch_count)
+│   ├── venv/                            # Python 가상 환경 (Git 추적 제외)
+│   ├── data/                            # 데이터 파일 (예: rss_sources.json - RSS 피드 정보)
+│   ├── server.py                        # Flask 메인 애플리케이션 파일
+│   ├── ecosystem.config.cjs             # PM2 백엔드 프로세스 설정 파일
+│   ├── requirements.txt                 # Python 의존성 목록
+│   └── tests/                           # 백엔드 테스트 코드
+├── data/                                # React/Vite 프론트엔드 애플리케이션
+│   ├── recipients_email.json            # 실제 이메일 구독자 명단
+│   ├── recipients_email_sample.json     # 이메일 구독자 명단 샘플
+│   ├── recipients_telegram.json         # 실제 텔레그램 구독자 명단
+│   ├── recipients_telegram_sample.json  # 텔레그램 구독자 명단 샘플
+├── frontend/                            # React/Vite 프론트엔드 애플리케이션
+│   ├── public/                          # 정적 파일 (index.html, favicon.ico 등)
+│   ├── src/                             # React 소스 코드
+│   │   ├── assets/                      # 이미지, 폰트 등 정적 자산
+│   │   ├── components/                  # 재사용 가능한 UI 컴포넌트
+│   │   ├── pages/                       # 개별 웹 페이지 컴포넌트
+│   │   ├── styles/                      # CSS 스타일 파일
+│   │   ├── App.jsx                      # React 메인 애플리케이션 (JavaScript 버전)
+│   │   └── App.tsx                      # React 메인 애플리케이션 (TypeScript 버전)
+│   ├── vite.config.js                   # Vite 설정 파일
+│   ├── ecosystem.config.cjs             # PM2 프론트엔드 프로세스 설정 파일
+│   ├── package.json                     # Node.js 의존성 및 스크립트
+│   └── tsconfig.json                    # TypeScript 설정
+├── .gitignore                           # Git 추적에서 제외할 파일/디렉토리 목록
+├── LICENSE                              # 라이선스 정보
+└── README.md                            # 프로젝트 설명 (현재 파일)
 ```
 
 ---
@@ -184,8 +189,8 @@ docker exec [YOUR_NGINX_CONTAINER_NAME_OR_ID] nginx -s reload # 설정 재로드
 ### 🌐 접속하기
 - 모든 설정이 완료되면, 다음 URL로 접속하여 서비스를 확인하세요.
 - 뉴스레터 구독/해지 페이지: https://leeyoungjun.duckdns.org/news-bot/
-- 설정 페이지 (토큰 포함): https://leeyoungjun.duckdns.org/news-settings?token=YOUR_TOKEN_HERE (Flask가 /news-bot/preferences로 리다이렉트)
-- 직접 설정 페이지: https://leeyoungjun.duckdns.org/preferences/?token=YOUR_TOKEN_HERE (Nginx가 /news-bot/preferences로 리다이렉트)
+- 설정 페이지 (토큰 포함): https://leeyoungjun.duckdns.org/news-settings?token=YOUR_TOKEN_HERE
+- 직접 설정 페이지: https://leeyoungjun.duckdns.org/preferences/?token=YOUR_TOKEN_HERE
 
 🛠️ 개발 & 배포 가이드
 - pm2 list: 실행 중인 PM2 프로세스 목록을 확인합니다.
