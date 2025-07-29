@@ -1,6 +1,7 @@
 from .crawler_mk import crawl_mk_news
 from .crawler_hk import crawl_hk_news
 from .crawler_se import crawl_se_news
+from .crawler_et import crawl_et_news
 
 # url에 따라 크롤러를 분리하여 호출한다.
 def crawl_news(url):
@@ -10,6 +11,8 @@ def crawl_news(url):
         return crawl_hk_news(url)
     elif "sedaily.com" in url:
         return crawl_se_news(url)
+    elif "etnews.com" in url:
+        return crawl_et_news(url)
     else:
         return {
             "title": "ERROR",

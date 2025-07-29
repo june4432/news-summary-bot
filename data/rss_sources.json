@@ -96,6 +96,11 @@
   },
   {
     "source":"전자신문",
+    "category":"오늘의 인기기사",
+    "url":"http://rss.etnews.com/Section903.xml"
+  },
+  {
+    "source":"전자신문",
     "category":"IT",
     "url":"http://rss.etnews.com/03.xml"
   },
@@ -106,22 +111,18 @@
   },
   {
     "source":"전자신문",
-    "category":"경제",
-    "url":"http://rss.etnews.com/02.xml"
-  },
-  {
-    "source":"전자신문",
-    "category":"금융",
-    "url":"http://rss.etnews.com/02027.xml"
-  },
-  {
-    "source":"전자신문",
     "category":"과학",
     "url":"http://rss.etnews.com/20.xml"
   },
   {
     "source":"전자신문",
-    "category":"플랫폼/유통",
-    "url":"http://rss.etnews.com/60.xml"
+    "category":"AI",
+    "url":"http://rss.etnews.com/04046.xml"
+  },
+  {
+    "source":"전자신문",
+    "category":"모빌리티",
+    "url":"http://rss.etnews.com/17.xml"
   }
+  
 ]

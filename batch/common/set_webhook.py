@@ -17,10 +17,12 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # .env 또는 환경변수에 저�
 
 def restart_ngrok():
     logging.info("🔁 ngrok pm2 프로세스 재시작 중...")
-    res = subprocess.run(["/usr/bin/pm2", "restart", "ngrok-newsbot"], capture_output=True, text=True)
+    # 'newsbot-ngrok' 이름이 정확하므로 그대로 사용합니다.
+    res = subprocess.run(["/usr/bin/pm2", "restart", "newsbot-ngrok"], capture_output=True, text=True)
     print("stdout:", res.stdout)
     print("stderr:", res.stderr)
-    time.sleep(3)
+    # 여기를 넉넉하게 10초 또는 15초로 늘려보세요.
+    time.sleep(4) # <-- 이 부분을 수정하세요!
 
 def get_ngrok_url():
     try:

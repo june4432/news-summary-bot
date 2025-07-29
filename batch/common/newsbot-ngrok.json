@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "newsbot-ngrok",  // 사용하시려는 이름으로 설정
+      "script": "ngrok",
+      "args": [
+        "http",  // ngrok의 하위 명령어 'http'
+        "3200"   // 'http' 명령어에 전달할 포트 번호
+      ],
+      "interpreter": "none", // ngrok는 자체 실행 파일이므로 'none'
+      "watch": false,
+      "autorestart": true,
+      "log_file": "~/.pm2/logs/newsbot-ngrok-log.txt",
+      "error_file": "~/.pm2/logs/newsbot-ngrok-error.txt",
+      "out_file": "~/.pm2/logs/newsbot-ngrok-out.txt"
+    }
+  ]
+}

@@ -24,12 +24,11 @@ news-summary-bot/
 │   │   ├── util/                        # 유틸리티 모듈 (RSS 파싱 등)
 │   │   └── .env                         # 배치 및 백엔드 환경 변수 (예: API 키, rss_batch_count)
 │   ├── venv/                            # Python 가상 환경 (Git 추적 제외)
-│   ├── data/                            # 데이터 파일 (예: rss_sources.json - RSS 피드 정보)
 │   ├── server.py                        # Flask 메인 애플리케이션 파일
 │   ├── ecosystem.config.cjs             # PM2 백엔드 프로세스 설정 파일
 │   ├── requirements.txt                 # Python 의존성 목록
 │   └── tests/                           # 백엔드 테스트 코드
-├── data/                                # React/Vite 프론트엔드 애플리케이션
+├── data/                                # 데이터 파일 (예: rss_sources.json - RSS 피드 정보)
 │   ├── recipients_email.json            # 실제 이메일 구독자 명단
 │   ├── recipients_email_sample.json     # 이메일 구독자 명단 샘플
 │   ├── recipients_telegram.json         # 실제 텔레그램 구독자 명단
@@ -47,6 +46,7 @@ news-summary-bot/
 │   ├── ecosystem.config.cjs             # PM2 프론트엔드 프로세스 설정 파일
 │   ├── package.json                     # Node.js 의존성 및 스크립트
 │   └── tsconfig.json                    # TypeScript 설정
+├── frontend/                            # React/Vite 프론트엔드 애플리케이션
 ├── .gitignore                           # Git 추적에서 제외할 파일/디렉토리 목록
 ├── LICENSE                              # 라이선스 정보
 └── README.md                            # 프로젝트 설명 (현재 파일)
