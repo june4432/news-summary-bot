@@ -43,12 +43,8 @@ def crawl_et_news(url):
                 # 이미지 URL 추가
                 image_urls.append(img_tag["src"])
                 
-                # 캡션 추출
-                caption_tag = img_figure.find("figcaption", class_="caption")
-                caption = caption_tag.get_text(strip=True) if caption_tag else f"사진{image_count}"
-                
-                # 본문에 사진 표시 추가
-                content_parts.append(f"[사진{image_count}: {caption}]")
+                # 본문에 사진 표시 추가 (노션 리플레이스용 간단 형태)
+                content_parts.append(f"[사진{image_count}]")
                 image_count += 1
 
         # 본문 텍스트 추출 (p 태그 내용)
