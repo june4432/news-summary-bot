@@ -6,6 +6,85 @@ from batch.telegram.telegram_formatter import escape_markdown_v2
 
 import json
 
+# 언어 감지 함수
+def detect_language(text):
+    """텍스트가 한국어인지 영어인지 간단하게 감지"""
+    korean_chars = sum(1 for char in text if '\uac00' <= char <= '\ud7af')
+    english_chars = sum(1 for char in text if char.isalpha() and ord(char) < 128)
+    
+    total_chars = korean_chars + english_chars
+    if total_chars == 0:
+        return "unknown"
+    
+    korean_ratio = korean_chars / total_chars
+    if korean_ratio > 0.3:  # 한국어 비율이 30% 이상이면 한국어로 판단
+        return "korean"
+    else:
+        return "english"
+
+# 영어 기사 번역을 위한 함수
+def translate_english_article(title, content, api_key):
+    url = "https://api.openai.com/v1/chat/completions"
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    prompt = f"""
+너는 영어 뉴스 기사를 한국어로 번역하는 전문 번역가야.
+아래 영어 기사의 제목과 본문을 자연스러운 한국어로 번역해줘.
+번역할 때는 다음을 지켜줘:
+1. 기술 용어나 고유명사는 적절히 한국어로 표현하되, 괄호 안에 원문을 병기할 수 있음
+2. 자연스러운 한국어 문체로 번역
+3. 뉴스 기사의 톤을 유지
+
+반드시 JSON 형식으로 응답해. **코드블럭 없이 순수 JSON**으로만 응답해.
+
+영어 제목: "{title}"
+영어 본문:
+\"\"\"
+{content}
+\"\"\"
+
+아래 형식에 맞춰 응답해:
+
+{{
+  "translated_title": "번역된 제목",
+  "translated_content": "번역된 본문"
+}}
+"""
+    
+    body = {
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3
+    }
+    
+    logger.info(f"🔍 영어 기사 번역 요청 시작...")
+    
+    response = requests.post(url, headers=headers, json=body)
+    
+    if response.status_code == 200:
+        raw = response.json()['choices'][0]['message']['content'].strip()
+        
+        try:
+            result = json.loads(raw)
+            translated_title = result.get("translated_title", title)
+            translated_content = result.get("translated_content", content)
+            
+            logger.info(f"✅ 번역 완료 - 제목: {translated_title[:50]}...")
+            
+            return translated_title, translated_content
+            
+        except json.JSONDecodeError as e:
+            logger.error("❌ 번역 JSON 파싱 실패", exc_info=True)
+            logger.error(f"🧾 GPT 번역 응답 원본: {raw}")
+            return title, content
+    else:
+        logger.error(f"❌ 번역 API 호출 오류: {response.status_code} {response.text}")
+        return title, content
+
 # 뉴스 본문 요약을 위한 챗지피티 호출 api
 def summarize_news_via_api(title, content, api_key):
     url = "https://api.openai.com/v1/chat/completions"

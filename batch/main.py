@@ -15,7 +15,7 @@ if project_root not in sys.path: # 중복 추가 방지
 
 from batch.util.rss import get_latest_news_urls
 from batch.crawler.crawler import crawl_news
-from batch.summarizer.summarizer_gpt import summarize_news_via_api
+from batch.summarizer.summarizer_gpt import summarize_news_via_api, detect_language, translate_english_article
 from batch.notion_writer.notion_writer import save_to_notion, get_existing_urls_from_notion
 from batch.mailer.mailer import build_email_body, send_email, get_email_subject
 from batch.mailer.bulk_mailer_advanced import send_bulk_email
@@ -90,6 +90,36 @@ for item in rss_sources:
 
         if article['url'] in existing_urls:
             continue  # 이미 저장된 뉴스는 스킵
+
+        # 🌍 언어 감지 및 번역 처리
+        language = detect_language(article['title'] + " " + article['content'])
+        logger.info(f"🔍 언어 감지 결과: {language}")
+        
+        # 원본 기사 정보 저장
+        article['original_title'] = article['title']
+        article['original_content'] = article['content']
+        article['language'] = language
+        
+        # 영어 기사인 경우 번역 수행
+        if language == "english":
+            try:
+                translated_title, translated_content = translate_english_article(
+                    article['title'], article['content'], api_key
+                )
+                article['translated_title'] = translated_title
+                article['translated_content'] = translated_content
+                
+                # 노션 저장 및 요약에는 번역된 내용 사용
+                article['title'] = translated_title
+                article['content'] = translated_content
+                
+                logger.info(f"🌍 번역 완료: {translated_title}")
+                
+            except Exception as e:
+                logger.error(f"❌ 번역 중 예외 발생: {article['url']} / {str(e)}", exc_info=True)
+                # 번역 실패 시에도 원본으로 계속 진행
+                article['translated_title'] = None
+                article['translated_content'] = None
 
         try:
             result = summarize_news_via_api(article['title'], article['content'], api_key)

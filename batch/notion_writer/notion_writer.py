@@ -11,6 +11,16 @@ def build_children_blocks_from_content(article):
     blocks = []
     image_counter = 1
 
+    # 🌍 영어 기사인 경우 원본 내용도 추가
+    if article.get("language") == "english" and article.get("original_content"):
+        blocks.append({
+            "object": "block",
+            "type": "heading_2",
+            "heading_2": {
+                "rich_text": [{"type": "text", "text": {"content": "📄 번역된 내용"}}]
+            }
+        })
+
     for paragraph in paragraphs:
         if paragraph.strip().startswith(f"[사진{image_counter}]") and len(image_urls) >= image_counter:
             blocks.append({
@@ -32,6 +42,34 @@ def build_children_blocks_from_content(article):
                     "rich_text": [{"type": "text", "text": {"content": paragraph}}]
                 }
             })
+    
+    # 🌍 영어 기사인 경우 원본 내용 추가
+    if article.get("language") == "english" and article.get("original_content"):
+        blocks.append({
+            "object": "block",
+            "type": "divider",
+            "divider": {}
+        })
+        
+        blocks.append({
+            "object": "block",
+            "type": "heading_2",
+            "heading_2": {
+                "rich_text": [{"type": "text", "text": {"content": "🌍 원본 내용 (English)"}}]
+            }
+        })
+        
+        original_paragraphs = article["original_content"].split("\n")
+        for paragraph in original_paragraphs:
+            if paragraph.strip():
+                blocks.append({
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {
+                        "rich_text": [{"type": "text", "text": {"content": paragraph}}]
+                    }
+                })
+    
     return blocks
 
 # 노션에 데이터를 저장한다.
@@ -68,7 +106,7 @@ def save_to_notion(article, notion_token, notion_database_id):
                 "name": article.get("source", "미지정")
             }
         },
-        "광고성 여부": {  # ✅ 여기 추가
+        "광고성 여부": {
             "checkbox": article.get("is_ad", False)
         },
         "키워드": {
@@ -77,8 +115,19 @@ def save_to_notion(article, notion_token, notion_database_id):
         "분위기": {
             "select": {"name": article.get("mood", "미분류")}
         }
-
     }
+
+    # 🌍 영어 기사인 경우 원본 제목과 내용도 저장
+    if article.get("language") == "english":
+        if article.get("original_title"):
+            properties["원본 제목"] = {
+                "rich_text": [{"text": {"content": article['original_title']}}]
+            }
+        
+        if article.get("translated_title"):
+            properties["번역된 제목"] = {
+                "rich_text": [{"text": {"content": article['translated_title']}}]
+            }
 
     if 'tags' in article and article['tags']:
         properties["태그"] = {
