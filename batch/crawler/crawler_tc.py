@@ -55,7 +55,7 @@ def crawl_tc_news(url):
                 
                 image_urls.append(src)
                 # 본문에 사진 표시 추가
-                content_parts.append(f"[사진{image_count}: {alt}]")
+                content_parts.append(f"[사진{image_count}]")
                 image_count += 1
 
         # 본문 텍스트 추출 - 직접 텍스트 추출
