@@ -77,6 +77,9 @@ for item in rss_sources:
 
     for url in urls:
 
+        if url in existing_urls:
+            continue  # 이미 저장된 뉴스는 스킵
+
         logger.info(f"🌐 [{category}] 크롤링 시작: {url}")
 
         
@@ -87,9 +90,6 @@ for item in rss_sources:
             continue
 
         logger.info(f"✅ 크롤링 성공: {article['title']}")
-
-        if article['url'] in existing_urls:
-            continue  # 이미 저장된 뉴스는 스킵
 
         # 🌍 언어 감지 및 번역 처리
         language = detect_language(article['title'] + " " + article['content'])

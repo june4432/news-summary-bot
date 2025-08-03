@@ -108,26 +108,8 @@ def save_to_notion(article, notion_token, notion_database_id):
         },
         "광고성 여부": {
             "checkbox": article.get("is_ad", False)
-        },
-        "키워드": {
-            "rich_text": [{"text": {"content": article['keyword']}}]
-        },
-        "분위기": {
-            "select": {"name": article.get("mood", "미분류")}
         }
     }
-
-    # 🌍 영어 기사인 경우 원본 제목과 내용도 저장
-    if article.get("language") == "english":
-        if article.get("original_title"):
-            properties["원본 제목"] = {
-                "rich_text": [{"text": {"content": article['original_title']}}]
-            }
-        
-        if article.get("translated_title"):
-            properties["번역된 제목"] = {
-                "rich_text": [{"text": {"content": article['translated_title']}}]
-            }
 
     if 'tags' in article and article['tags']:
         properties["태그"] = {
