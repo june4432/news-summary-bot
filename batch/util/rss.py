@@ -12,6 +12,6 @@ def load_rss_sources():
     return grouped
 
 # RSS URL을 통해서 최근 10개의 기사 목록을 가져오는 기능
-def get_latest_news_urls(rss_url, limit=int(rss_batch_count)):
+def get_latest_news_urls(rss_url, limit=int(rss_batch_count) if rss_batch_count else 10):
     feed = feedparser.parse(rss_url)
     return [entry.link for entry in feed.entries[:limit]]

@@ -123,6 +123,35 @@
     "source":"전자신문",
     "category":"모빌리티",
     "url":"http://rss.etnews.com/17.xml"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"AI",
+    "url":"https://techcrunch.com/category/artificial-intelligence/feed/"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"Startups",
+    "url":"https://techcrunch.com/category/startups/feed/"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"Google",
+    "url":"https://techcrunch.com/tag/google/feed/"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"Meta",
+    "url":"https://techcrunch.com/tag/meta/feed/"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"Microsoft",
+    "url":"https://techcrunch.com/tag/microsoft/feed/"
+  },
+  {
+    "source":"TechCrunch",
+    "category":"Apple",
+    "url":"https://techcrunch.com/tag/apple/feed/"
   }
-  
 ]

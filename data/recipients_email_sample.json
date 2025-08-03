@@ -11,7 +11,10 @@
       "21:30"
     ],
     "categories": [
-      "전자신문::IT"
+      "TechCrunch::AI",
+            "TechCrunch::Meta",
+            "TechCrunch::Microsoft",
+            "TechCrunch::Apple"
     ],
     "modified_at": "2025-06-26T14:17:17.866Z"
   }
