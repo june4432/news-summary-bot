@@ -178,10 +178,20 @@ for article in news_data:
 
 logger.info("영어 기사 번역 완료")
 
-logger.info("노션 저장 시작")
-# ✅ 노션 저장 (번역 완료된 내용으로)
+logger.info("노션 저장 시작 (모든 기사 메타데이터, 영어 기사는 본문도)")
+# ✅ 노션 저장 (모든 기사 저장하되, 영어 기사만 본문 포함)
+english_articles_saved = 0
+korean_articles_saved = 0
 for article in news_data:
     save_to_notion(article, notion_token, notion_database_id)
-logger.info("노션 저장 완료")
+    
+    if article.get('language') == 'english':
+        english_articles_saved += 1
+        logger.info(f"📄 영어 기사 노션 저장 (번역본+원문): {article.get('title', 'Unknown')[:50]}...")
+    else:
+        korean_articles_saved += 1
+        logger.info(f"🔍 한국어 기사 노션 저장 (메타데이터만): {article.get('title', 'Unknown')[:50]}...")
+
+logger.info(f"노션 저장 완료 - 영어 기사 {english_articles_saved}개 (전체), 한국어 기사 {korean_articles_saved}개 (메타만)")
 
 logger.info("뉴스레터 발송 작업 완료!!!")

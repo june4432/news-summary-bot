@@ -6,18 +6,24 @@ from batch.common.config import notion_database_id, notion_token
 
 # 데이터 베이스 안에 들어갈 속 글을 만든다.
 def build_children_blocks_from_content(article):
+    # 🔍 한국어 기사는 본문 블록 저장하지 않음 (메타데이터만)
+    if article.get("language") != "english":
+        logger.info(f"🔍 [노션블록] 한국어 기사 - 본문 블록 생성 건너뜀: {article.get('title', 'Unknown')[:50]}...")
+        return []
+    
     paragraphs = article["content"].split("\n")
     image_urls = article.get("images", [])
     blocks = []
     image_counter = 1
 
     # 🌍 디버깅: 번역 관련 정보 로깅
+    logger.info(f"🔍 [노션블록] 영어 기사 본문 블록 생성 시작")
     logger.info(f"🔍 [노션블록] 언어: {article.get('language')}")
     logger.info(f"🔍 [노션블록] 원본 내용 존재: {bool(article.get('original_content'))}")
     logger.info(f"🔍 [노션블록] 번역된 제목 존재: {bool(article.get('translated_title'))}")
 
-    # 🌍 영어 기사인 경우 원본 내용도 추가
-    if article.get("language") == "english" and article.get("original_content"):
+    # 🌍 영어 기사인 경우 번역된 내용 헤더 추가
+    if article.get("original_content"):
         logger.info("📝 [노션블록] 영어 기사 번역 블록 생성 시작")
         blocks.append({
             "object": "block",
