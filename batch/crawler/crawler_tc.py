@@ -66,6 +66,32 @@ def crawl_tc_news(url):
         ]):
             unwanted.decompose()
         
+        # 🚫 TechCrunch 광고성 요소들 제거
+        cta_elements = content_div.find_all(class_="wp-block-techcrunch-inline-cta")
+        if cta_elements:
+            print(f"🚫 TechCrunch CTA 요소 {len(cta_elements)}개 제거됨")
+            for ad_element in cta_elements:
+                ad_element.decompose()
+        
+        # 🚫 기타 광고성 클래스들도 제거
+        ad_classes = [
+            "wp-block-embed",
+            "wp-block-button", 
+            "newsletter-signup",
+            "inline-ad"
+        ]
+        total_ads_removed = 0
+        for ad_class in ad_classes:
+            ad_elements = content_div.find_all(class_=ad_class)
+            if ad_elements:
+                print(f"🚫 {ad_class} 광고 요소 {len(ad_elements)}개 제거됨")
+                total_ads_removed += len(ad_elements)
+                for ad_element in ad_elements:
+                    ad_element.decompose()
+        
+        if total_ads_removed > 0:
+            print(f"🚫 총 {total_ads_removed}개의 광고성 요소가 제거되었습니다")
+        
         # 전체 텍스트를 가져온 후 정리
         full_text = content_div.get_text(separator="\n", strip=True)
         
