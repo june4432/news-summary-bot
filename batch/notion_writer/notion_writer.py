@@ -11,8 +11,14 @@ def build_children_blocks_from_content(article):
     blocks = []
     image_counter = 1
 
+    # 🌍 디버깅: 번역 관련 정보 로깅
+    logger.info(f"🔍 [노션블록] 언어: {article.get('language')}")
+    logger.info(f"🔍 [노션블록] 원본 내용 존재: {bool(article.get('original_content'))}")
+    logger.info(f"🔍 [노션블록] 번역된 제목 존재: {bool(article.get('translated_title'))}")
+
     # 🌍 영어 기사인 경우 원본 내용도 추가
     if article.get("language") == "english" and article.get("original_content"):
+        logger.info("📝 [노션블록] 영어 기사 번역 블록 생성 시작")
         blocks.append({
             "object": "block",
             "type": "heading_2",
@@ -45,6 +51,8 @@ def build_children_blocks_from_content(article):
     
     # 🌍 영어 기사인 경우 원본 내용 추가
     if article.get("language") == "english" and article.get("original_content"):
+        logger.info("📝 [노션블록] 원본 내용 추가 시작")
+        
         blocks.append({
             "object": "block",
             "type": "divider",
@@ -60,6 +68,9 @@ def build_children_blocks_from_content(article):
         })
         
         original_paragraphs = article["original_content"].split("\n")
+        logger.info(f"📝 [노션블록] 원본 문단 수: {len(original_paragraphs)}")
+        
+        paragraph_count = 0
         for paragraph in original_paragraphs:
             if paragraph.strip():
                 blocks.append({
@@ -69,6 +80,11 @@ def build_children_blocks_from_content(article):
                         "rich_text": [{"type": "text", "text": {"content": paragraph}}]
                     }
                 })
+                paragraph_count += 1
+        
+        logger.info(f"📝 [노션블록] 원본 내용 블록 추가 완료 - {paragraph_count}개 문단")
+    else:
+        logger.info(f"📝 [노션블록] 원본 내용 추가 조건 불충족 - 언어: {article.get('language')}, 원본내용존재: {bool(article.get('original_content'))}")
     
     return blocks
 
@@ -110,6 +126,18 @@ def save_to_notion(article, notion_token, notion_database_id):
             "checkbox": article.get("is_ad", False)
         }
     }
+
+    # 🌍 영어 기사인 경우 원본 제목과 번역된 제목도 저장
+    if article.get("language") == "english":
+        if article.get("original_title"):
+            properties["원본 제목"] = {
+                "rich_text": [{"text": {"content": article['original_title']}}]
+            }
+        
+        if article.get("translated_title"):
+            properties["번역된 제목"] = {
+                "rich_text": [{"text": {"content": article['translated_title']}}]
+            }
 
     if 'tags' in article and article['tags']:
         properties["태그"] = {

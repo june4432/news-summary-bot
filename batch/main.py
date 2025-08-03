@@ -94,35 +94,26 @@ for item in rss_sources:
         # 🌍 언어 감지 및 번역 처리
         language = detect_language(article['title'] + " " + article['content'])
         logger.info(f"🔍 언어 감지 결과: {language}")
+        logger.info(f"🔍 원본 제목: {article['title'][:100]}...")
         
         # 원본 기사 정보 저장
         article['original_title'] = article['title']
         article['original_content'] = article['content']
         article['language'] = language
         
-        # 영어 기사인 경우 번역 수행
-        if language == "english":
-            try:
-                translated_title, translated_content = translate_english_article(
-                    article['title'], article['content'], api_key
-                )
-                article['translated_title'] = translated_title
-                article['translated_content'] = translated_content
-                
-                # 노션 저장 및 요약에는 번역된 내용 사용
-                article['title'] = translated_title
-                article['content'] = translated_content
-                
-                logger.info(f"🌍 번역 완료: {translated_title}")
-                
-            except Exception as e:
-                logger.error(f"❌ 번역 중 예외 발생: {article['url']} / {str(e)}", exc_info=True)
-                # 번역 실패 시에도 원본으로 계속 진행
-                article['translated_title'] = None
-                article['translated_content'] = None
-
+        logger.info(f"🔍 원본 정보 저장 완료 - original_title 길이: {len(article.get('original_title', ''))}")
+        logger.info(f"🔍 원본 정보 저장 완료 - original_content 길이: {len(article.get('original_content', ''))}")
+        
+        # 🔄 요약 수행: 영어 기사는 원문으로, 한국어 기사는 그대로
         try:
-            result = summarize_news_via_api(article['title'], article['content'], api_key)
+            if language == "english":
+                logger.info("🌍 영어 기사 - 원문으로 요약 시작 (결과는 한국어로)")
+                # 영어 원문으로 요약하되 결과는 한국어로
+                result = summarize_news_via_api(article['original_title'], article['original_content'], api_key)
+            else:
+                logger.info("🔍 한국어 기사 - 그대로 요약 시작")
+                # 한국어 기사는 그대로 요약
+                result = summarize_news_via_api(article['title'], article['content'], api_key)
 
             summary, tags, emoji, is_ad, keyword, mood = result
 
@@ -153,15 +144,44 @@ for item in rss_sources:
 
 logger.info("뉴스 카테고리 크롤링 종료")
 
+logger.info("메일 및 텔레그램 발송 시작")
+# ✅ 메일 + 텔레그램 발송 (요약된 내용으로 먼저 전송)
+send_bulk_email(news_data)
+logger.info("메일 및 텔레그램 발송 종료")
+
+logger.info("영어 기사 번역 시작")
+# 🌍 영어 기사들만 번역 수행
+for article in news_data:
+    if article.get('language') == 'english':
+        logger.info(f"🌍 영어 기사 번역 시작: {article['original_title'][:50]}...")
+        try:
+            translated_title, translated_content = translate_english_article(
+                article['original_title'], article['original_content'], api_key
+            )
+            article['translated_title'] = translated_title
+            article['translated_content'] = translated_content
+            
+            # 노션 저장용으로 번역된 내용 사용
+            article['title'] = translated_title
+            article['content'] = translated_content
+            
+            logger.info(f"🌍 번역 완료: {translated_title[:50]}...")
+            
+        except Exception as e:
+            logger.error(f"❌ 번역 중 예외 발생: {article['url']} / {str(e)}", exc_info=True)
+            # 번역 실패 시에도 원본으로 노션 저장
+            article['translated_title'] = None
+            article['translated_content'] = None
+            logger.info("⚠️ 번역 실패 - 원본 내용으로 노션 저장")
+    else:
+        logger.info(f"🔍 한국어 기사 - 번역 건너뜀: {article['title'][:50]}...")
+
+logger.info("영어 기사 번역 완료")
+
 logger.info("노션 저장 시작")
-# ✅ 노션 저장
+# ✅ 노션 저장 (번역 완료된 내용으로)
 for article in news_data:
     save_to_notion(article, notion_token, notion_database_id)
 logger.info("노션 저장 완료")
-
-logger.info("메일 및 텔레그램 발송 시작")
-# ✅ 메일 + 텔레그램 발송
-send_bulk_email(news_data)
-logger.info("메일 및 텔레그램 발송 종료")
 
 logger.info("뉴스레터 발송 작업 완료!!!")

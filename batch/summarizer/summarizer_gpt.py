@@ -14,12 +14,18 @@ def detect_language(text):
     
     total_chars = korean_chars + english_chars
     if total_chars == 0:
+        logger.info("🔍 [언어감지] 알파벳 문자가 없음 - unknown 반환")
         return "unknown"
     
     korean_ratio = korean_chars / total_chars
+    logger.info(f"🔍 [언어감지] 한국어 문자: {korean_chars}, 영어 문자: {english_chars}")
+    logger.info(f"🔍 [언어감지] 한국어 비율: {korean_ratio:.2f}")
+    
     if korean_ratio > 0.3:  # 한국어 비율이 30% 이상이면 한국어로 판단
+        logger.info("🔍 [언어감지] 결과: korean")
         return "korean"
     else:
+        logger.info("🔍 [언어감지] 결과: english")
         return "english"
 
 # 영어 기사 번역을 위한 함수
@@ -62,11 +68,15 @@ def translate_english_article(title, content, api_key):
     }
     
     logger.info(f"🔍 영어 기사 번역 요청 시작...")
+    logger.info(f"🔍 번역 대상 제목: {title[:100]}...")
+    content_preview = content[:200].replace('\n', ' ') + ("..." if len(content) > 200 else "")
+    logger.info(f"🔍 번역 대상 본문 일부: {content_preview}")
     
     response = requests.post(url, headers=headers, json=body)
     
     if response.status_code == 200:
         raw = response.json()['choices'][0]['message']['content'].strip()
+        logger.info(f"🔍 번역 API 응답 길이: {len(raw)}")
         
         try:
             result = json.loads(raw)
@@ -74,6 +84,7 @@ def translate_english_article(title, content, api_key):
             translated_content = result.get("translated_content", content)
             
             logger.info(f"✅ 번역 완료 - 제목: {translated_title[:50]}...")
+            logger.info(f"✅ 번역 완료 - 본문 길이: {len(translated_content)}")
             
             return translated_title, translated_content
             
@@ -96,13 +107,15 @@ def summarize_news_via_api(title, content, api_key):
 
     prompt = f"""
 너는 뉴스 기사를 읽고 기사를 분석하는 전문가야.
-기사의 제목과 본문을 분석하한 후 아래 내용을 참조하여 결과를 만들어줘.
+기사의 제목과 본문을 분석한 후 아래 내용을 참조하여 결과를 만들어줘.
+기사가 영어인 경우에도 모든 결과는 **한국어**로 작성해야 해.
+
 반드시 JSON 형식으로 응답해야 해. **코드블럭 없이 순수 JSON**으로만 응답해.
 3줄 요약은 불렛 포인트 형식으로 **명사형** 또는 **동명사형** 표현을 사용할 것
 기사의 내용을 가장 잘 표현하는 이모지를 emoji에 담을 것.
-기사 내용을 포괄하는 주요 키워드 3개를 추출해서 tags를 채울 것.
+기사 내용을 포괄하는 주요 키워드 3개를 한국어로 추출해서 tags를 채울 것.
 기사의 내용이 특정 상품/서비스/기업을 홍보하거나 구매/이용을 유도하는 내용이 주를 이루는 경우에 따라 true or false로 표현할 것.
-이 기사의 핵심 주제를 나타내는 키워드 1개를 명사형 혹은 동명사형으로 추출해 keyword에 담을 것.
+이 기사의 핵심 주제를 나타내는 키워드 1개를 한국어 명사형 혹은 동명사형으로 추출해 keyword에 담을 것.
 핵심 키워드에 대한 기사의 분위기를 긍정/부정/중립 으로 분석하여 mood에 담을 것.
 
 제목: "{title}"
@@ -111,7 +124,7 @@ def summarize_news_via_api(title, content, api_key):
 {content}
 \"\"\"
 
-아래 형식에 맞춰 응답해:
+아래 형식에 맞춰 한국어로 응답해:
 
 {{
   "summary": [
