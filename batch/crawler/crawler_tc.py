@@ -92,19 +92,36 @@ def crawl_tc_news(url):
         if total_ads_removed > 0:
             print(f"🚫 총 {total_ads_removed}개의 광고성 요소가 제거되었습니다")
         
-        # 전체 텍스트를 가져온 후 정리
-        full_text = content_div.get_text(separator="\n", strip=True)
+        # 전체 텍스트를 가져온 후 정리 (태그 경계에서 공백으로 처리)
+        full_text = content_div.get_text(separator=" ", strip=True)
         
-        # 줄바꿈으로 분리해서 의미있는 문장들만 추출
+        # 문장 단위로 분리 (마침표, 느낌표, 물음표 기준)
+        sentences = re.split(r'(?<=[.!?])\s+', full_text)
+        
         lines = []
-        for line in full_text.split('\n'):
-            line = line.strip()
-            # 의미있는 텍스트만 포함 (길이 체크 및 특정 패턴 제외)
-            if (line and len(line) > 15 and 
-                not line.lower().startswith(('image credits:', 'posted:', 'topics')) and
-                not line.endswith('ago') and
-                not line.isdigit()):
-                lines.append(line)
+        previous_sentence = ""
+        
+        for sentence in sentences:
+            sentence = sentence.strip()
+            # 의미있는 문장만 포함 (길이 체크 및 특정 패턴 제외)
+            if (sentence and len(sentence) > 5 and  # 최소 길이를 15에서 5로 줄임
+                not sentence.lower().startswith(('image credits:', 'posted:', 'topics', 'photo by', 'image:', 'credit:')) and
+                not sentence.endswith('ago') and
+                not sentence.isdigit() and
+                not re.match(r'^[0-9\s\-\/]+$', sentence)):  # 날짜나 숫자만 있는 줄 제외
+                
+                # 여러 공백을 하나로 정리
+                sentence = re.sub(r'\s+', ' ', sentence)
+                
+                # 짧은 문장 처리 - 섹션 제목이나 불완전한 문장만 합치기
+                if (len(sentence) < 50 and lines and 
+                    (not sentence.endswith(('.', '!', '?')) or  # 문장 부호로 끝나지 않거나
+                     sentence.isupper() or  # 대문자로만 이루어져 있거나 (제목)
+                     sentence.count(' ') < 3)):  # 단어가 3개 미만인 경우 (제목이나 불완전한 문장)
+                    lines[-1] = lines[-1] + " " + sentence
+                else:
+                    lines.append(sentence)
+                    previous_sentence = sentence
         
         # 중복 제거하면서 순서 유지
         seen = set()

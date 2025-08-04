@@ -92,6 +92,20 @@ def build_children_blocks_from_content(article):
     else:
         logger.info(f"📝 [노션블록] 원본 내용 추가 조건 불충족 - 언어: {article.get('language')}, 원본내용존재: {bool(article.get('original_content'))}")
     
+    # 🚨 Notion API 제한: 최대 100개 블록까지만 허용
+    if len(blocks) > 100:
+        logger.warning(f"⚠️ [노션블록] 블록 개수 초과 ({len(blocks)}개) - 100개로 제한")
+        blocks = blocks[:100]
+        # 마지막에 제한 안내 블록 추가
+        blocks[-1] = {
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": "⚠️ 내용이 길어 일부만 표시됩니다. 전체 내용은 기사 링크를 확인해주세요."}}]
+            }
+        }
+    
+    logger.info(f"📝 [노션블록] 최종 블록 개수: {len(blocks)}개")
     return blocks
 
 # 노션에 데이터를 저장한다.
