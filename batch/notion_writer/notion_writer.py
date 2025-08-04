@@ -11,7 +11,11 @@ def build_children_blocks_from_content(article):
         logger.info(f"🔍 [노션블록] 한국어 기사 - 본문 블록 생성 건너뜀: {article.get('title', 'Unknown')[:50]}...")
         return []
     
-    paragraphs = article["content"].split("\n")
+    # 🔍 TechCrunch 등 영어 기사는 \n\n으로 구분, 한국어 기사는 \n으로 구분
+    if article.get("language") == "english":
+        paragraphs = article["content"].split("\n\n")
+    else:
+        paragraphs = article["content"].split("\n")
     image_urls = article.get("images", [])
     blocks = []
     image_counter = 1
@@ -22,14 +26,14 @@ def build_children_blocks_from_content(article):
     logger.info(f"🔍 [노션블록] 원본 내용 존재: {bool(article.get('original_content'))}")
     logger.info(f"🔍 [노션블록] 번역된 제목 존재: {bool(article.get('translated_title'))}")
 
-    # 🌍 영어 기사인 경우 번역된 내용 헤더 추가
-    if article.get("original_content"):
+    # 🌍 영어 기사인 경우 번역된 제목을 H2로 추가
+    if article.get("original_content") and article.get("translated_title"):
         logger.info("📝 [노션블록] 영어 기사 번역 블록 생성 시작")
         blocks.append({
             "object": "block",
             "type": "heading_2",
             "heading_2": {
-                "rich_text": [{"type": "text", "text": {"content": "📄 번역된 내용"}}]
+                "rich_text": [{"type": "text", "text": {"content": f"🇰🇷 {article['translated_title']}"}}]
             }
         })
 
@@ -65,15 +69,18 @@ def build_children_blocks_from_content(article):
             "divider": {}
         })
         
+        # 원문 제목을 H2로 추가
+        original_title = article.get('original_title', 'Original Content')
         blocks.append({
             "object": "block",
             "type": "heading_2",
             "heading_2": {
-                "rich_text": [{"type": "text", "text": {"content": "🌍 원본 내용 (English)"}}]
+                "rich_text": [{"type": "text", "text": {"content": f"🇺🇸 {original_title}"}}]
             }
         })
         
-        original_paragraphs = article["original_content"].split("\n")
+        # 🔍 영어 원문도 \n\n으로 구분
+        original_paragraphs = article["original_content"].split("\n\n")
         logger.info(f"📝 [노션블록] 원본 문단 수: {len(original_paragraphs)}")
         
         paragraph_count = 0
@@ -95,15 +102,39 @@ def build_children_blocks_from_content(article):
     # 🚨 Notion API 제한: 최대 100개 블록까지만 허용
     if len(blocks) > 100:
         logger.warning(f"⚠️ [노션블록] 블록 개수 초과 ({len(blocks)}개) - 100개로 제한")
-        blocks = blocks[:100]
+        
+        # 🌍 영어 기사인 경우 번역된 내용 우선 보존
+        if article.get("language") == "english" and article.get("original_content"):
+            # 번역된 제목과 본문 찾기
+            translated_section_end = 0
+            divider_found = False
+            
+            for i, block in enumerate(blocks):
+                if block.get("type") == "divider":
+                    translated_section_end = i
+                    divider_found = True
+                    break
+            
+            if divider_found and translated_section_end > 0:
+                # 번역된 부분 + 몇 개의 원문 블록 유지
+                remaining_blocks = 100 - translated_section_end - 2  # 구분선과 경고 메시지 공간
+                if remaining_blocks > 0:
+                    blocks = blocks[:translated_section_end + min(remaining_blocks, len(blocks) - translated_section_end)]
+                else:
+                    blocks = blocks[:translated_section_end]
+            else:
+                blocks = blocks[:99]  # 경고 메시지 공간 확보
+        else:
+            blocks = blocks[:99]  # 경고 메시지 공간 확보
+        
         # 마지막에 제한 안내 블록 추가
-        blocks[-1] = {
+        blocks.append({
             "object": "block",
             "type": "paragraph",
             "paragraph": {
                 "rich_text": [{"type": "text", "text": {"content": "⚠️ 내용이 길어 일부만 표시됩니다. 전체 내용은 기사 링크를 확인해주세요."}}]
             }
-        }
+        })
     
     logger.info(f"📝 [노션블록] 최종 블록 개수: {len(blocks)}개")
     return blocks
@@ -121,9 +152,12 @@ def save_to_notion(article, notion_token, notion_database_id):
     kst = timezone(timedelta(hours=9))
     scrap_time = datetime.now(kst).isoformat()
 
+    # 🌍 영어 기사인 경우 원문 제목으로 저장, 그 외는 기존 제목
+    display_title = article.get('original_title', article['title']) if article.get("language") == "english" else article['title']
+    
     properties = {
         "제목": {
-            "title": [{"text": {"content": article['title']}}]
+            "title": [{"text": {"content": display_title}}]
         },
         "요약": {
             "rich_text": [{"text": {"content": article['summary']}}]
