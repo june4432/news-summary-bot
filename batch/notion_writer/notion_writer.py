@@ -181,17 +181,7 @@ def save_to_notion(article, notion_token, notion_database_id):
         }
     }
 
-    # 🌍 영어 기사인 경우 원본 제목과 번역된 제목도 저장
-    if article.get("language") == "english":
-        if article.get("original_title"):
-            properties["원본 제목"] = {
-                "rich_text": [{"text": {"content": article['original_title']}}]
-            }
-        
-        if article.get("translated_title"):
-            properties["번역된 제목"] = {
-                "rich_text": [{"text": {"content": article['translated_title']}}]
-            }
+    # 🌍 영어 기사는 제목 필드에 원문으로 이미 저장됨 (위에서 display_title 처리)
 
     if 'tags' in article and article['tags']:
         properties["태그"] = {
