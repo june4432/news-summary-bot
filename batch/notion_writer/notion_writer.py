@@ -188,7 +188,7 @@ def save_to_notion(article, notion_token, notion_database_id):
             "multi_select": [{"name": tag} for tag in article['tags']]
         }
 
-    children = build_children_blocks_from_content(article)
+    #children = build_children_blocks_from_content(article)
 
     data = {
         "parent": {"database_id": notion_database_id},
@@ -196,8 +196,8 @@ def save_to_notion(article, notion_token, notion_database_id):
             "type": "emoji",
             "emoji": "📰"
         },        
-        "properties": properties,
-        "children": children
+        "properties": properties
+        #,"children": children
     }
 
     response = requests.post(url, headers=headers, json=data)
